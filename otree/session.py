@@ -29,6 +29,10 @@ from otree.models_concrete import ParticipantLockModel
 import otree.bots.browser
 
 
+import firewatch
+firewatch.start()
+
+
 def gcd(a, b):
     """Return greatest common divisor using Euclid's Algorithm."""
     while b:
