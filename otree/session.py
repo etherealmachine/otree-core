@@ -29,8 +29,8 @@ from otree.models_concrete import ParticipantLockModel
 import otree.bots.browser
 
 
-import firewatch
-firewatch.start()
+import otree.firewatch
+otree.firewatch.start()
 
 
 def gcd(a, b):

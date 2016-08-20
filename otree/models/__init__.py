@@ -25,6 +25,9 @@ player_module = import_module('otree.models.player')
 session_module = import_module('otree.models.session')
 participant_module = import_module('otree.models.participant')
 
+decision_module = import_module('otree.models.decision')
+log_module = import_module('otree.models.log')
+
 
 def ensure_required_fields(sender, **kwargs):
     """
@@ -45,3 +48,5 @@ Participant = participant_module.Participant
 BaseSubsession = subsession_module.BaseSubsession
 BaseGroup = group_module.BaseGroup
 BasePlayer = player_module.BasePlayer
+Decision = decision_module.Decision
+LogEvent = log_module.LogEvent

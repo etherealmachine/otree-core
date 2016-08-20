@@ -135,6 +135,35 @@ def export_data(fp, app_name):
     writer = csv.writer(fp)
     writer.writerows([colnames])
     writer.writerows(rows)
+    sessions = set((row[colnames.index('Session.code')] for row in rows))
+    from django.db.models import Q
+    from otree.models.log import LogEvent
+    import operator
+    import StringIO
+    log_file = StringIO.StringIO()
+    log_csv = csv.writer(log_file)
+    log_csv.writerow([
+        'timestamp',
+        'session',
+        'subsession',
+        'round',
+        'group',
+        'participant',
+        'event'
+    ])
+    query = (Q(session=session) for session in sessions)
+    for e in LogEvent.objects.filter(reduce(operator.or_, query)):
+        log_csv.writerow([
+            e.timestamp,
+            e.session,
+            e.subsession,
+            e.round,
+            e.group,
+            e.participant,
+            e.event
+        ])
+    print log_file.getvalue()
+    log_file.close()
 
 
 def export_time_spent(fp):
