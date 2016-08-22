@@ -65,7 +65,7 @@ class Thread(threading.Thread):
 		logger.info('Firewatch up and watching %s', fbURL)
 
 	def run(self):
-		print 'run'
+		print('run')
 		params = {'auth': self.token}
 		messages = SSEClient(
 			self.fbURL,

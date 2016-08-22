@@ -42,6 +42,7 @@ repeated games.
 		<style>
 			.msglist {
 				height: 150px;
+                overflow-y: auto;
 			}
 		</style>
 
@@ -99,6 +100,9 @@ repeated games.
 				msg_: String,
 				fbRef_: String
 			},
+            observers: [
+                'msgChange_(msgs.splices)'
+            ],
 			ready: function() {
 				this.fbRef_ = (
 					'https://otree.firebaseio.com' +
@@ -125,7 +129,10 @@ repeated games.
 					msg: this.msg_
 				});
 				this.set('msg_', '');
-			}
+			},
+            msgChange_: function () {
+                this.$$(".msglist").scrollTop = this.$$(".msglist").scrollHeight;
+            }
 		});
 	</script>
 

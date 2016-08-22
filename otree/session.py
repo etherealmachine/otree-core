@@ -29,7 +29,7 @@ from otree.models_concrete import ParticipantLockModel
 import otree.bots.browser
 
 
-import firewatch
+from otree import firewatch
 firewatch.start()
 
 
