@@ -49,6 +49,10 @@ Example:
 			.highlight {
 				background: #90CAF9;
 			}
+
+			:host {
+				margin: 10px;
+			}
 		</style>
 
 		<firebase-document
@@ -60,19 +64,23 @@ Example:
 
 	    <otree-log id="log"></otree-log>
 
-		<table class="table">
+		<table class="table table-bordered text-center" style="width: auto; margin: auto">
 			<tr>
-				<td></td>
+				<th colspan="2" rowspan="2"></th>
+				<th colspan="2">Other Participant</th>
+			</tr>
+			<tr>
 				<template
 					is="dom-repeat"
 					items="[[rowLabels]]"
 					as="label">
-					<td>[[label]]</td>
+					<th>[[label]]</th>
 				</template>
 			</tr>
 			<tr>
+				<th rowspan="2"><span class="rotate90">You</span></th>
 				<td>
-					<span>[[_arrayItem(rowLabels.*, 0)]]</span>	
+					<span>[[_arrayItem(rowLabels.*, 0)]]</span>
 					<input
 						checked$="[[_equals(0, my_decision)]]"
 						name="my_decision"
@@ -81,15 +89,15 @@ Example:
 						value="0">
 				</td>
 				<td class$="[[_highlight(decisions, 0, 0)]]">
-					[[_payoff(payoffMatrix.*, 0, 0)]]
+					[[_payoff(payoffMatrix.*, 0, 0)]], [[_payoff(payoffMatrix.*, 0, 1)]]
 				</td>
 				<td class$="[[_highlight(decisions, 0, 1)]]">
-					[[_payoff(payoffMatrix.*, 0, 1)]]
+					[[_payoff(payoffMatrix.*, 1, 0)]], [[_payoff(payoffMatrix.*, 1, 1)]]
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<span>[[_arrayItem(rowLabels.*, 1)]]</span>	
+					<span>[[_arrayItem(rowLabels.*, 1)]]</span>
 					<input
 						checked$="[[_equals(1, my_decision)]]"
 						name="my_decision"
@@ -98,10 +106,10 @@ Example:
 						value="1">
 				</td>
 				<td class$="[[_highlight(decisions, 1, 0)]]">
-					[[_payoff(payoffMatrix.*, 1, 0)]]
+					[[_payoff(payoffMatrix.*, 2, 0)]], [[_payoff(payoffMatrix.*, 2, 1)]]
 				</td>
 				<td class$="[[_highlight(decisions, 1, 1)]]">
-					[[_payoff(payoffMatrix.*, 1, 1)]]
+					[[_payoff(payoffMatrix.*, 3, 0)]], [[_payoff(payoffMatrix.*, 3, 1)]]
 				</td>
 			</tr>
 		</table>
@@ -135,11 +143,9 @@ Example:
 				return d == decision;
 			},
 			_setMyDecision(event) {
-				var d = parseInt(event.target.value)
+				var d = parseInt(event.target.value);
 				if (this.decisions === null) {
-					var decisions = {};
-					decisions[this.$.vars.participantCode] = d
-					this.decisions = decisions;
+					this.decisions = {};
 				}
 				var pcode = this.$.vars.participantCode;
 				this.set('decisions.' + pcode, d);
