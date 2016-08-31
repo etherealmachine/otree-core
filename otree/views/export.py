@@ -69,14 +69,14 @@ class ExportCsv(vanilla.View):
     url_pattern = r"^ExportCsv/(?P<app_label>[\w.]+)/$"
 
     def _data_file_name(self, app_label):
-        return '{} (accessed {}).csv'.format(
+        return '{} (accessed {}).zip'.format(
             otree.common_internal.app_name_format(app_label),
             datetime.date.today().isoformat(),
         )
 
     def get(self, request, *args, **kwargs):
         app_label = kwargs['app_label']
-        response = HttpResponse(content_type='text/csv')
+        response = HttpResponse(content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self._data_file_name(app_label)
         )
