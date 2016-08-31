@@ -1,36 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-import os
-import sys
-import datetime
-import collections
-import inspect
-import re
-import random
-import string
-import errno
-import logging
-import hashlib
-import requests
-import json
-import uuid
-
-
-from os.path import dirname, join
 from collections import OrderedDict
 from importlib import import_module
+from os.path import dirname, join
+import collections
+import datetime
+import errno
+import hashlib
+import inspect
+import json
+import logging
+import operator
+import os
+import random
+import re
+import requests
+import StringIO
+import string
+import sys
+import uuid
+import zipfile
 
 import channels
 import six
 from six.moves import urllib
 
-from django.db import connection
 from django.apps import apps
 from django.conf import settings
-from django.template.defaultfilters import title
 from django.core.urlresolvers import reverse
+from django.db import connection
+from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.template.defaultfilters import title
 
 import otree
 
@@ -125,16 +127,73 @@ def get_app_constants(app_name):
 
 
 def export_data(fp, app_name):
-    """Write the data of the given app name as csv into the file-like object
+    """Write the data of the given app name as a zip file into the file-like object
 
+    Limit to the given session, if not None.
+
+    Generates three files:
+        table.csv
+        log.csv
+        ticks.csv
+        stream.json:
     """
+    # Defer import to runtime to avoid weird interaction with settings.py
+    from otree.models.log import LogEvent
     from otree.views.admin import get_display_table_rows
+
+    zip_file = StringIO.StringIO()
+    z = zipfile.ZipFile(zip_file, 'w')
+
+    # table.csv
+    table = StringIO.StringIO()
+    table_csv = csv.writer(table)
     colnames, rows = get_display_table_rows(
         app_name, for_export=True, subsession_pk=None)
     colnames = ['{}.{}'.format(k, v) for k, v in colnames]
-    writer = csv.writer(fp)
-    writer.writerows([colnames])
-    writer.writerows(rows)
+    table_csv = csv.writer(table)
+    table_csv.writerows([colnames])
+    table_csv.writerows(rows)
+    z.writestr('table.csv', table.getvalue())
+
+    # log.csv
+    log = StringIO.StringIO()
+    sessions = set((row[colnames.index('Session.code')] for row in rows))
+    log_csv = csv.writer(log)
+    log_csv.writerow([
+        'timestamp',
+        'session',
+        'subsession',
+        'round',
+        'group',
+        'participant',
+        'event'
+    ])
+    query = (Q(session=session) for session in sessions)
+    for e in LogEvent.objects.filter(reduce(operator.or_, query)):
+        log_csv.writerow([
+            e.timestamp,
+            e.session,
+            e.subsession,
+            e.round,
+            e.group,
+            e.participant,
+            e.event
+        ])
+    z.writestr('log.csv', log.getvalue())
+
+    # ticks.csv
+    ticks = StringIO.StringIO()
+    ticks.write('TODO')
+    z.writestr('ticks.csv', ticks.getvalue())
+
+    # stream.json
+    stream = StringIO.StringIO()
+    stream.write('{"TODO": true}')
+    z.writestr('stream.json', stream.getvalue())
+
+    z.close()
+    fp.write(zip_file.getvalue())
+    zip_file.close()
 
 
 def export_time_spent(fp):
