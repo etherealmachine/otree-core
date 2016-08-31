@@ -146,6 +146,9 @@ Example:
 				this.my_decision = d;
 			},
 			_decisionsChanged() {
+				if (this.decisions === null) {
+					return;
+				}
 				var pcode = this.$.vars.participantCode;
 				this.my_decision = this.decisions[pcode];
 			},
@@ -156,6 +159,9 @@ Example:
 				return change.base[x][y];
 			},
 			_highlight(decisions, x, y) {
+				if (this.decisions === null) {
+					return;
+				}
 				// TODO(jpettit): Wrap into concept of a
 				// "decision vector", maybe as pluggable
 				// behavior.

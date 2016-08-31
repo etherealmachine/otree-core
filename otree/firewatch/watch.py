@@ -35,6 +35,7 @@ import logging
 import re
 from sseclient import SSEClient
 import threading
+import time
 
 from otree.models.decision import Decision
 from otree.models.log import LogEvent
@@ -65,10 +66,9 @@ class Thread(threading.Thread):
 		self.fbURL = fbURL
 		self.token = create_token(_FIREBASE_SECRET, {'uid': '1'})
 		self.decisions = defaultdict()
-		logger.info('Firewatch up and watching %s', fbURL)
+		logger.info('Firewatch watching %s', fbURL)
 
 	def run(self):
-		print 'run'
 		params = {'auth': self.token}
 		messages = SSEClient(
 			self.fbURL,
@@ -100,7 +100,3 @@ class Thread(threading.Thread):
 					event.participant =  Participant.objects.get(code=msg['participant_code'])
 					event.event = msg['event']
 					event.save()
-
-
-
-
