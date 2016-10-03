@@ -49,14 +49,21 @@ function make_heatmap(canvas_id, payoffs, payoff_index) {
 	ctx.putImageData(imageData, 0, 0);
 }
 
-var high_color = [255, 0, 0];
-var low_color = [255, 255, 255];
+var color_stops = [
+	[255, 255, 255],
+	[255, 0 , 0]
+];
 
-// calculate color for any given point in the gradient between high_color and low_color
-// where passing 1.0 gives high_color and passing 0.0 gives low_color
+// gets colors from the gradient defined by the color stops above
+// 0.0 <= percent <= 1.0
+// where percent = 1.0 gets the last color in color_stops and percent = 0.0 gets the first color in color_stops
 function get_gradient_color(percent) {
-	var r = percent * high_color[0] + (1 - percent) * low_color[0];
-	var g = percent * high_color[1] + (1 - percent) * low_color[1];
-	var b = percent * high_color[2] + (1 - percent) * low_color[2];
+	percent *= (color_stops.length - 1);
+	var low_color = Math.floor(percent);
+	var high_color = Math.ceil(percent);
+	percent -= low_color;
+	var r = percent * color_stops[high_color][0] + (1 - percent) * color_stops[low_color][0];
+	var g = percent * color_stops[high_color][1] + (1 - percent) * color_stops[low_color][1];
+	var b = percent * color_stops[high_color][2] + (1 - percent) * color_stops[low_color][2];
 	return [r, g, b];
 }
