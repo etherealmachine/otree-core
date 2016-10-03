@@ -40,6 +40,7 @@ Example:
                 "{{ Constants.defect_amount }}",
                 "{{ Constants.defect_amount }}"
             ]
+            payoff-index='{{ player.id_in_group|add:"-1" }}'
         ]'>
 	</otree-bimatrix>
 -->
@@ -61,16 +62,16 @@ Example:
 				writing-mode: bt-lr; /* IE */
 				-webkit-appearance: slider-vertical; /* WebKit */
 				width: 8px;
-				height: 360px;
+				height: 370px;
 				padding: 0 5px;
-				margin-top: 20px;
-				margin-left: 10px;
+				margin-top: 15px;
+				margin-left: 15px;
 				float: left;
 			}
 			
 			#bimatrix-container {
 				margin: auto;
-				width: 400px;
+				width: 420px;
 				height: 400px;
 				border: solid 2px orange;
 			}
@@ -79,7 +80,7 @@ Example:
 				position: relative;
 				width: 360px;
 				height: 360px;
-				margin-right: 10px;
+				margin-right: 15px;
 				margin-top: 20px;
 				float: right;
 			}
@@ -98,8 +99,8 @@ Example:
 			#other-val {
 				position: absolute;
 				height: 100%;
-				left: 0;
-				border-right: 2px solid black;
+				right: 0;
+				border-left: 2px solid black;
 			}
 
 		</style>
@@ -130,6 +131,7 @@ Example:
 			properties: {
 				rowLabels: Array,
 				payoffMatrix: Array,
+				payoffIndex: Number,
 				my_decision: Number,
 				decisions: {
 					type: Object,
@@ -148,7 +150,7 @@ Example:
 					'/decisions');
 				this.my_decision = .5;
 				this.other_decision = .5;
-				make_heatmap("canvas", this.payoffMatrix);
+				make_heatmap("canvas", this.payoffMatrix, this.payoffIndex);
 			},
 			_equals(d, decision) {
 				return d == decision;

@@ -1,13 +1,17 @@
 // function to generate a heatmap for continuous bimatrix
 // takes the id of a canvas element and an array of payoffs as arguments
 
-function make_heatmap(canvas_id, payoffs) {
+function make_heatmap(canvas_id, payoffs, payoff_index) {
 	var canvas = document.getElementById(canvas_id);
 	var w = canvas.width;
 	var h = canvas.height;
 	var ctx = canvas.getContext('2d');
 
-	var max_payoff = Math.max(payoffs[0][0], payoffs[1][0], payoffs[2][0], payoffs[3][0]);
+	// extract the set of payoffs corresponding to this player's payoff index
+	payoffs = payoffs.map(function (current_val) {
+		return current_val[payoff_index];
+	});
+	var max_payoff = Math.max(payoffs[0], payoffs[1], payoffs[2], payoffs[3]);
 
 	// create empty imageData object
 	var imageData = ctx.createImageData(w, h);
@@ -24,10 +28,10 @@ function make_heatmap(canvas_id, payoffs) {
 			var percent_left = 1 - percent_right;
 
 			// calculate the payoff at each pixel by weighting the payoff at each corner by its distance from the pixel
-			point_payoff = (percent_top * percent_left * payoffs[0][0]) +
-			               (percent_top * percent_right * payoffs[1][0]) +
-			               (percent_bottom * percent_left * payoffs[2][0]) +
-			               (percent_bottom * percent_right * payoffs[3][0]);
+			point_payoff = (percent_top * percent_left * payoffs[0]) +
+			               (percent_top * percent_right * payoffs[1]) +
+			               (percent_bottom * percent_left * payoffs[2]) +
+			               (percent_bottom * percent_right * payoffs[3]);
 
 			// divide the payoff by the max payoff to get an color intensity percentage
 			// use get_gradient_color to get the appropriate color in the gradient for that percentage
