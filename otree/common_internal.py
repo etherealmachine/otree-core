@@ -16,7 +16,6 @@ import os
 import random
 import re
 import requests
-import StringIO
 import string
 import sys
 import uuid
@@ -24,6 +23,7 @@ import zipfile
 
 import channels
 import six
+from six import StringIO
 from six.moves import urllib
 
 from django.apps import apps
