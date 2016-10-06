@@ -50,8 +50,11 @@ function make_heatmap(canvas_id, payoffs, payoff_index) {
 }
 
 var color_stops = [
-	[255, 255, 255],
-	[255, 0 , 0]
+	[255, 0, 0],
+	[255, 255, 0],
+	[0, 255, 0],
+	[0, 255, 255],
+	[0, 0, 255]
 ];
 
 // gets colors from the gradient defined by the color stops above
