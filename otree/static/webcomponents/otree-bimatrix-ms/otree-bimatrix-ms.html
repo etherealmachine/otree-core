@@ -57,6 +57,13 @@ Example:
 				margin: 10px;
 			}
 
+			.payoff_labels {
+				position: absolute;
+				padding: 0;
+				font-size: 9pt;
+				font-weight: bold;
+			}
+
 			input[type=range]
 			{
 				writing-mode: bt-lr; /* IE */
@@ -64,7 +71,7 @@ Example:
 				width: 8px;
 				height: 370px;
 				padding: 0 5px;
-				margin-top: 15px;
+				margin-top: 25px;
 				margin-left: 15px;
 				float: left;
 			}
@@ -72,7 +79,7 @@ Example:
 			#bimatrix-container {
 				margin: auto;
 				width: 420px;
-				height: 400px;
+				height: 420px;
 				border: solid 2px orange;
 			}
 
@@ -81,7 +88,7 @@ Example:
 				width: 360px;
 				height: 360px;
 				margin-right: 15px;
-				margin-top: 20px;
+				margin-top: 30px;
 				float: right;
 			}
 
@@ -118,6 +125,10 @@ Example:
 			<input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
 			<div id="heatmap">
 				<canvas width="360" height="360" id="canvas"></canvas>
+				<span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
+				<span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
+				<span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
+				<span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
 				<div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
 				<div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
 			</div>
@@ -139,6 +150,9 @@ Example:
 				},
 				fbRef_: String
 			},
+			listeners: {
+				'keyup' : '_setMyDecision'
+			},
 			ready: function() {
 				this.fbRef_ = (
 					'https://otree.firebaseio.com' +
@@ -156,6 +170,9 @@ Example:
 				return d == decision;
 			},
 			_setMyDecision(event) {
+				if (event.type === 'keyup' && !(event.key === 'ArrowDown') && !(event.key === 'ArrowUp')) {
+					return;
+				}
 				var d = parseFloat(event.target.value);
 				if (this.decisions === null) {
 					this.decisions = {};
@@ -185,6 +202,9 @@ Example:
 			},
 			_calcPercent(decision) {
 				return decision * 100 + "%";
+			},
+			_payoff: function(change, x, y) {
+				return change.base[x][y];
 			}
 		});
 	</script>
