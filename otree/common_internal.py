@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from importlib import import_module
 from os.path import dirname, join
 import collections
 import datetime
 import errno
+import functools
 import hashlib
 import inspect
+import itertools
 import json
 import logging
 import operator
@@ -23,7 +25,7 @@ import zipfile
 
 import channels
 import six
-from six import StringIO
+from six import StringIO, BytesIO
 from six.moves import urllib
 
 from django.apps import apps
@@ -141,11 +143,11 @@ def export_data(fp, app_name):
     from otree.models.log import LogEvent
     from otree.views.admin import get_display_table_rows
 
-    zip_file = StringIO.StringIO()
+    zip_file = BytesIO()
     z = zipfile.ZipFile(zip_file, 'w')
 
     # table.csv
-    table = StringIO.StringIO()
+    table = StringIO()
     table_csv = csv.writer(table)
     colnames, rows = get_display_table_rows(
         app_name, for_export=True, subsession_pk=None)
@@ -156,10 +158,8 @@ def export_data(fp, app_name):
     z.writestr('table.csv', table.getvalue())
 
     # log.csv
-    log = StringIO.StringIO()
-    sessions = set((row[colnames.index('Session.code')] for row in rows))
-    log_csv = csv.writer(log)
-    log_csv.writerow([
+    log = StringIO()
+    log_csv = csv.DictWriter(log, [
         'timestamp',
         'session',
         'subsession',
@@ -168,28 +168,74 @@ def export_data(fp, app_name):
         'participant',
         'event'
     ])
-    query = (Q(session=session) for session in sessions)
-    for e in LogEvent.objects.filter(reduce(operator.or_, query)):
-        log_csv.writerow([
-            e.timestamp,
-            e.session,
-            e.subsession,
-            e.round,
-            e.group,
-            e.participant,
-            e.event
-        ])
+    log_csv.writeheader()
+    sessions = set((row[colnames.index('Session.code')] for row in rows))
+    query = [Q(session=session) for session in sessions]
+    events = [{
+        'timestamp': e.timestamp,
+        'session': e.session,
+        'subsession': e.subsession,
+        'round': e.round,
+        'group': e.group,
+        'participant': e.participant,
+        'event': e.event
+    } for e in LogEvent.objects.filter(functools.reduce(operator.or_, query))]
+    log_csv.writerows(events)
     z.writestr('log.csv', log.getvalue())
 
-    # ticks.csv
-    ticks = StringIO.StringIO()
-    ticks.write('TODO')
-    z.writestr('ticks.csv', ticks.getvalue())
+    # roll through timestamps and group in a time window ("tick")
+    # for each tick, calculate mean decision for each participant
+    def calculate_tick(decisions, last_tick):
+        t = -1
+        if last_tick:
+            t = last_tick.tick
+        return {
+            'session': 'foo',
+            'subsession': 'bar',
+            'round': 'baz',
+            'tick': t + 1,
+            'group': 'bang',
+            'participant': 'bat',
+            'mean_decision': 0.5
+        }
 
-    # stream.json
-    stream = StringIO.StringIO()
-    stream.write('{"TODO": true}')
-    z.writestr('stream.json', stream.getvalue())
+    ticks = defaultdict(
+        lambda: defaultdict( # component
+            lambda: defaultdict( # session
+                lambda: defaultdict( # subsession
+                    lambda: defaultdict( # round
+                        lambda: defaultdict( # group
+                            lambda: [] # participant -> array
+    ))))))
+    for d in otree.models.Decision.objects.filter(
+        functools.reduce(operator.or_, query)).order_by('timestamp'):
+
+        print(
+            d.component,
+            d.session,
+            d.subsession,
+            d.round,
+            d.group,
+            d.participant,
+            d.decision
+        )
+
+        ticks[d.component][d.session][d.subsession][d.round][d.group][d.participant].append((d.timestamp, d.decision))
+
+    print(ticks.keys())
+    tickfile = StringIO()
+    ticks_csv = csv.DictWriter(tickfile, [
+        'session',
+        'subsession',
+        'round',
+        'tick',
+        'group',
+        'participant',
+        'mean_decision'
+    ])
+    ticks_csv.writeheader()
+    #ticks_csv.writerows(ticks)
+    z.writestr('ticks.csv', tickfile.getvalue())
 
     z.close()
     fp.write(zip_file.getvalue())

@@ -3,7 +3,7 @@
 		href="/static/bower_components/polymer/polymer.html" />
 <link
 		rel="import"
-		href="/static/bower_components/firebase-element/firebase-document.html" />
+		href="/static/bower_components/polymerfire/firebase-document.html" />
 <link
 		rel="import"
 		href="/static/webcomponents/otree-vars/otree-vars.html" />
@@ -44,7 +44,7 @@ Example:
         ]'>
 	</otree-bimatrix>
 -->
-<dom-module id="otree-bimatrix-ms">
+<dom-module id="otree-continuous-bimatrix">
 
 	<template>
 
@@ -106,13 +106,14 @@ Example:
 		</style>
 
 		<firebase-document
-	      location="[[fbRef_]]"
+				id="fbdoc"
+	      path="[[path_]]"
 	      data="{{decisions}}">
-	    </firebase-document>
+    </firebase-document>
 
-	    <otree-vars id="vars"></otree-vars>
+    <otree-vars id="vars"></otree-vars>
 
-	    <otree-log id="log"></otree-log>
+    <otree-log id="log"></otree-log>
 
 		<div id="bimatrix-container">
 			<input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
@@ -127,7 +128,7 @@ Example:
 
 	<script>
 		Polymer({
-			is: 'otree-bimatrix-ms',
+			is: 'otree-continuous-bimatrix',
 			properties: {
 				rowLabels: Array,
 				payoffMatrix: Array,
@@ -137,11 +138,10 @@ Example:
 					type: Object,
 					observer: '_decisionsChanged'
 				},
-				fbRef_: String
+				path_: String
 			},
 			ready: function() {
-				this.fbRef_ = (
-					'https://otree.firebaseio.com' +
+				this.path_ = (
 					'/component/otree-bimatrix' +
 					'/session/' + this.$.vars.session +
 					'/subsession/' + this.$.vars.subsession +

@@ -13,7 +13,7 @@
     "tests"
   ],
   "dependencies": {
-    "firebase-element": "GoogleWebComponents/firebase-element#^1.0.12",
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "polymerfire": "^0.9.7"
   }
 }

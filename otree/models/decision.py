@@ -13,7 +13,7 @@ class Decision(models.Model):
 	timestamp = models.DateTimeField(auto_now_add=True)
 	component = models.CharField(max_length=100, null=False)
 	session = models.CharField(max_length=100, null=False)
-	subsession = models.IntegerField(null=False)
+	subsession = models.IntegerField(null=True)
 	round = models.IntegerField(null=False)
 	group = models.IntegerField(null=False)
 	participant = models.ForeignKey('otree.Participant', null=False)

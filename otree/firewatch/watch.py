@@ -45,9 +45,6 @@ from otree.models.participant import Participant
 logger = logging.getLogger(__name__)
 
 _FIREBASE_SECRET = 'uXop5iUjKkGfH20sFmdCMenX7QnUWmnWDde76WQR'
-_DECISION_RE = re.compile('/component/(?P<component>.*)/session/(?P<session>.*)/subsession/(?P<subsession>.*)/round/(?P<round>.*)/group/(?P<group>.*)/decisions/(?P<participant_code>.*)')
-_LOG_RE = re.compile('/log/(?P<session>.*)/.*')
-
 
 def start():
 	lock = fasteners.InterProcessLock('/tmp/firewatch_lock_file')
@@ -58,6 +55,38 @@ def start():
 	t.daemon = True
 	t.start()
 
+_DECISION_RE = re.compile('/component/(?P<component>.*)/session/(?P<session>.*)/subsession/(?P<subsession>.*)/round/(?P<round>.*)/group/(?P<group>.*)/decisions/(?P<participant_code>.*)')
+def _handleDecisionEvent(match, data):
+	g = match.groupdict()
+	d = Decision()
+	d.component = g['component']
+	d.session = g['session']
+	try:
+		d.subsession = int(g['subsession'])
+	except ValueError:
+		pass
+	d.round = int(g['round'])
+	d.group = int(g['group'])
+	d.participant =  Participant.objects.get(code=g['participant_code'])
+	d.decision = data
+	d.save()
+
+_LOG_RE = re.compile('/log/(?P<session>.*)/.*')
+def _handleLogEvent(match, data):
+	g = match.groupdict()
+	event = LogEvent()
+	event.session = g['session']
+	event.subsession = data['subsession']
+	event.round = data['round']
+	event.group = data['group']
+	event.participant =  Participant.objects.get(code=data['participant_code'])
+	event.event = data['event']
+	event.save()
+
+_matchers = [
+	(_DECISION_RE, _handleDecisionEvent),
+	(_LOG_RE, _handleLogEvent),
+]
 
 class Thread(threading.Thread):
 
@@ -76,27 +105,16 @@ class Thread(threading.Thread):
 		for msg in messages:
 			if msg.event == 'put':
 				data = json.loads(msg.data)
-				match = _DECISION_RE.match(data['path'])
-				if match:
-					g = match.groupdict()
-					d = Decision()
-					d.component = g['component']
-					d.session = g['session']
-					d.subsession = int(g['subsession'])
-					d.round = int(g['round'])
-					d.group = int(g['group'])
-					d.participant =  Participant.objects.get(code=g['participant_code'])
-					d.decision = float(data['data'])
-					d.save()
-				match = _LOG_RE.match(data['path'])
-				if match:
-					msg = data['data']
-					g = match.groupdict()
-					event = LogEvent()
-					event.session = g['session']
-					event.subsession = msg['subsession']
-					event.round = msg['round']
-					event.group = msg['group']
-					event.participant =  Participant.objects.get(code=msg['participant_code'])
-					event.event = msg['event']
-					event.save()
+				matches = []
+				for (regex, handlerFunc) in _matchers:
+					match = regex.match(data['path'])
+					if match:
+						handlerFunc(match, data['data'])
+						matches.append((handlerFunc, match, data['data']))
+				if len(matches) == 0:
+					logger.warning('unhandled firebase event at path %s', data['path'])
+				elif len(matches) > 1:
+					logger.warning('more than one handler for firebase event at path %s', data['path'])
+				else:
+					f, match, data = matches[0]
+					f(match, data)

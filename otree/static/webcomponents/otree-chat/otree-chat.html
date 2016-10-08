@@ -2,8 +2,11 @@
 		rel="import"
 		href="/static/bower_components/polymer/polymer.html" />
 <link
+    rel="import"
+    href="/static/bower_components/polymerfire/firebase-app.html" />
+<link
 		rel="import"
-		href="/static/bower_components/firebase-element/firebase-collection.html" />
+		href="/static/bower_components/polymerfire/firebase-query.html" />
 <link
 		rel="import"
 		href="/static/webcomponents/otree-vars/otree-vars.html" />
@@ -42,19 +45,25 @@ repeated games.
 		<style>
 			.msglist {
 				height: 150px;
-                overflow-y: auto;
+        overflow-y: auto;
 			}
 		</style>
+		
+    <firebase-app
+        api-key="AIzaSyDhaihpJ2W7mR_bScBsc6brBQyFG2N8tJo"
+        auth-domain="otree.firebaseapp.com"
+        database-url="otree.firebaseio.com">
+    </firebase-app>
 
-		<firebase-collection
-	      location="[[fbRef_]]"
-	      data="{{msgs}}"
+		<firebase-query
+	      path="[[path_]]"
+	      data="[[msgs]]"
 	      order-by-child="timestamp">
-	    </firebase-collection>
+    </firebase-query>
 
-	    <otree-vars id="vars"></otree-vars>
+    <otree-vars id="vars"></otree-vars>
 
-	    <otree-log id="log"></otree-log>
+    <otree-log id="log"></otree-log>
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -98,14 +107,13 @@ repeated games.
 				/** TODO */
 				msgs: Array,
 				msg_: String,
-				fbRef_: String
+				path_: String
 			},
-            observers: [
-                'msgChange_(msgs.splices)'
-            ],
+      observers: [
+          'msgChange_(msgs.splices)'
+      ],
 			ready: function() {
-				this.fbRef_ = (
-					'https://otree.firebaseio.com' +
+				this.path_ = (
 					'/component/otree-chat' +
 					'/session/' + this.$.vars.session +
 					'/subsession/' + this.$.vars.subsession +
@@ -115,14 +123,14 @@ repeated games.
 			},
 			send_: function(e) {
 				e.preventDefault();
-				if (typeof this.msgs === 'undefined') {
-					this.set('msgs', []);
-				}
-				this.push('msgs', {
+				// TODO(jpettit): Persist message to firebase.
+				/*
+				{
 					content: this.msg_,
 					sender: this.sender,
 					timestamp: Date.now()
-				});
+				}
+				*/
 				this.$.log.write({
 					component: 'otree-chat',
 					event: 'msg',
@@ -130,9 +138,9 @@ repeated games.
 				});
 				this.set('msg_', '');
 			},
-            msgChange_: function () {
-                this.$$(".msglist").scrollTop = this.$$(".msglist").scrollHeight;
-            }
+      msgChange_: function () {
+          this.$$(".msglist").scrollTop = this.$$(".msglist").scrollHeight;
+      }
 		});
 	</script>
 
