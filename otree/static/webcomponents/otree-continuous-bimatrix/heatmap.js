@@ -49,10 +49,32 @@ function make_heatmap(canvas_id, payoffs, payoff_index) {
 	ctx.putImageData(imageData, 0, 0);
 }
 
+// weathermap
+// var color_stops = [
+// 	[255, 0, 0],
+// 	[255, 255, 0],
+// 	[0, 255, 0],
+// 	[0, 255, 255],
+// 	[0, 0, 255]
+// ];
+
+// rainbow
 var color_stops = [
-	[255, 255, 255],
-	[255, 0 , 0]
+	[148, 0, 211],
+	[75, 0, 130],
+	[0, 0, 255],
+	[0, 255, 255],
+	[0, 255, 0],
+	[255, 255, 0],
+	[255, 127, 0],
+	[255, 0, 0]
 ];
+
+// monochrome
+// var color_stops = [
+// 	[255, 255, 255],
+// 	[255, 0, 0]
+// ];
 
 // gets colors from the gradient defined by the color stops above
 // 0.0 <= percent <= 1.0
