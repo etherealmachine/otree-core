@@ -2,9 +2,6 @@
 		rel="import"
 		href="/static/bower_components/polymer/polymer.html" />
 <link
-    rel="import"
-    href="/static/bower_components/polymerfire/firebase-app.html" />
-<link
 		rel="import"
 		href="/static/bower_components/polymerfire/firebase-query.html" />
 <link
@@ -49,16 +46,10 @@ repeated games.
 			}
 		</style>
 		
-    <firebase-app
-        api-key="AIzaSyDhaihpJ2W7mR_bScBsc6brBQyFG2N8tJo"
-        auth-domain="otree.firebaseapp.com"
-        database-url="otree.firebaseio.com">
-    </firebase-app>
-
 		<firebase-query
+				id="query"
 	      path="[[path_]]"
-	      data="[[msgs]]"
-	      order-by-child="timestamp">
+	      data="{{msgs}}">
     </firebase-query>
 
     <otree-vars id="vars"></otree-vars>
@@ -107,7 +98,8 @@ repeated games.
 				/** TODO */
 				msgs: Array,
 				msg_: String,
-				path_: String
+				path_: String,
+				fbRef_: Object,
 			},
       observers: [
           'msgChange_(msgs.splices)'
@@ -120,17 +112,16 @@ repeated games.
 					'/round/' + this.$.vars.round +
 					'/group/' + this.$.vars.group +
 					'/msgs');
+				this.fbRef_ = document.querySelector('firebase-app')
+					.app.database().ref(this.path_);
 			},
 			send_: function(e) {
 				e.preventDefault();
-				// TODO(jpettit): Persist message to firebase.
-				/*
-				{
+				this.fbRef_.push({
 					content: this.msg_,
 					sender: this.sender,
 					timestamp: Date.now()
-				}
-				*/
+				});
 				this.$.log.write({
 					component: 'otree-chat',
 					event: 'msg',

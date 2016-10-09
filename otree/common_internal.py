@@ -30,6 +30,7 @@ from six.moves import urllib
 
 from django.apps import apps
 from django.conf import settings
+from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models import Q
@@ -199,43 +200,9 @@ def export_data(fp, app_name):
             'mean_decision': 0.5
         }
 
-    ticks = defaultdict(
-        lambda: defaultdict( # component
-            lambda: defaultdict( # session
-                lambda: defaultdict( # subsession
-                    lambda: defaultdict( # round
-                        lambda: defaultdict( # group
-                            lambda: [] # participant -> array
-    ))))))
-    for d in otree.models.Decision.objects.filter(
-        functools.reduce(operator.or_, query)).order_by('timestamp'):
-
-        print(
-            d.component,
-            d.session,
-            d.subsession,
-            d.round,
-            d.group,
-            d.participant,
-            d.decision
-        )
-
-        ticks[d.component][d.session][d.subsession][d.round][d.group][d.participant].append((d.timestamp, d.decision))
-
-    print(ticks.keys())
-    tickfile = StringIO()
-    ticks_csv = csv.DictWriter(tickfile, [
-        'session',
-        'subsession',
-        'round',
-        'tick',
-        'group',
-        'participant',
-        'mean_decision'
-    ])
-    ticks_csv.writeheader()
-    #ticks_csv.writerows(ticks)
-    z.writestr('ticks.csv', tickfile.getvalue())
+    decisions = otree.models.Decision.objects.filter(
+        functools.reduce(operator.or_, query)).order_by('timestamp').all()
+    z.writestr('decisions.json', serializers.serialize('json', decisions))
 
     z.close()
     fp.write(zip_file.getvalue())

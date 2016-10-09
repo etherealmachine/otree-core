@@ -31,9 +31,17 @@ In your component:
 	<script>
 		Polymer({
 			is: 'otree-log',
+			properties: {
+				fbRef_: Object,
+			},
+			ready: function() {
+				this.fbRef_ = document.querySelector('firebase-app')
+					.app.database().ref('log/' + this.$.vars.session);
+			},
 			write: function(event) {
-				this.$.vars.fbref.child('log/' + this.$.vars.session).push({
-					subsession: this.$.vars.subsession,
+				const subsession = isNaN(this.$.vars.subsession) ? null : this.$.vars.subsession;
+				this.fbRef_.push({
+					subsession: subsession,
 					round: this.$.vars.round,
 					group: this.$.vars.group,
 					role: this.$.vars.role,
