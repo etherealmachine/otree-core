@@ -47,41 +47,41 @@ logger = logging.getLogger(__name__)
 _FIREBASE_SECRET = 'uXop5iUjKkGfH20sFmdCMenX7QnUWmnWDde76WQR'
 
 def start():
-  lock = fasteners.InterProcessLock('/tmp/firewatch_lock_file')
-  if not lock.acquire(blocking=False):
-    return
-  atexit.register(lock.release)
-  t = Thread('https://otree.firebaseio.com/.json')
-  t.daemon = True
-  t.start()
+	lock = fasteners.InterProcessLock('/tmp/firewatch_lock_file')
+	if not lock.acquire(blocking=False):
+	    return
+	atexit.register(lock.release)
+	t = Thread('https://otree.firebaseio.com/.json')
+	t.daemon = True
+	t.start()
 
 _DECISION_RE = re.compile('/component/(?P<component>.*)/session/(?P<session>.*)/subsession/(?P<subsession>.*)/round/(?P<round>.*)/group/(?P<group>.*)/decisions/(?P<participant_code>.*)')
 def _handleDecisionEvent(match, data):
-  g = match.groupdict()
-  d = Decision()
-  d.component = g['component']
-  d.session = g['session']
-  try:
-    d.subsession = int(g['subsession'])
-  except ValueError:
-    pass
-  d.round = int(g['round'])
-  d.group = int(g['group'])
-  d.participant =  Participant.objects.get(code=g['participant_code'])
-  d.decision = data
-  d.save()
+	g = match.groupdict()
+	d = Decision()
+	d.component = g['component']
+	d.session = g['session']
+	try:
+		d.subsession = int(g['subsession'])
+	except ValueError:
+		pass
+	d.round = int(g['round'])
+	d.group = int(g['group'])
+	d.participant =  Participant.objects.get(code=g['participant_code'])
+	d.decision = data
+	d.save()
 
 _LOG_RE = re.compile('/log/(?P<session>.*)/.*')
 def _handleLogEvent(match, data):
-  g = match.groupdict()
-  event = LogEvent()
-  event.session = g['session']
-  event.subsession = data['subsession']
-  event.round = data['round']
-  event.group = data['group']
-  event.participant =  Participant.objects.get(code=data['participant_code'])
-  event.event = data['event']
-  event.save()
+	g = match.groupdict()
+	event = LogEvent()
+	event.session = g['session']
+	event.subsession = data['subsession']
+	event.round = data['round']
+	event.group = data['group']
+	event.participant =  Participant.objects.get(code=data['participant_code'])
+	event.event = data['event']
+	event.save()
 
 _matchers = [
   (_DECISION_RE, _handleDecisionEvent),
@@ -90,31 +90,31 @@ _matchers = [
 
 class Thread(threading.Thread):
 
-  def __init__(self, fbURL):
-    super(Thread, self).__init__()
-    self.fbURL = fbURL
-    self.token = create_token(_FIREBASE_SECRET, {'uid': '1'})
-    self.decisions = defaultdict()
-    logger.info('Firewatch watching %s', fbURL)
+	  def __init__(self, fbURL):
+		    super(Thread, self).__init__()
+		    self.fbURL = fbURL
+		    self.token = create_token(_FIREBASE_SECRET, {'uid': '1'})
+		    self.decisions = defaultdict()
+		    logger.info('Firewatch watching %s', fbURL)
 
   def run(self):
-    params = {'auth': self.token}
-    messages = SSEClient(
-      self.fbURL,
-      params=params)
-    for msg in messages:
-      if msg.event == 'put':
-        data = json.loads(msg.data)
-        matches = []
-        for (regex, handlerFunc) in _matchers:
-          match = regex.match(data['path'])
-          if match:
-            handlerFunc(match, data['data'])
-            matches.append((handlerFunc, match, data['data']))
-        if len(matches) == 0:
-          logger.warning('unhandled firebase event at path %s', data['path'])
-        elif len(matches) > 1:
-          logger.warning('more than one handler for firebase event at path %s', data['path'])
-        else:
-          f, match, data = matches[0]
-          f(match, data)
+	    params = {'auth': self.token}
+	    messages = SSEClient(
+		      self.fbURL,
+		      params=params)
+	    for msg in messages:
+		      if msg.event == 'put':
+			        data = json.loads(msg.data)
+			        matches = []
+			        for (regex, handlerFunc) in _matchers:
+				        match = regex.match(data['path'])
+				        if match:
+							handlerFunc(match, data['data'])
+							matches.append((handlerFunc, match, data['data']))
+			        if len(matches) == 0:
+				        logger.warning('unhandled firebase event at path %s', data['path'])
+			        elif len(matches) > 1:
+				        logger.warning('more than one handler for firebase event at path %s', data['path'])
+			        else:
+				        f, match, data = matches[0]
+				        f(match, data)
