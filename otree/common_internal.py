@@ -185,7 +185,9 @@ def export_data(fp, app_name):
 
     decisions = otree.models.Decision.objects.filter(
         functools.reduce(operator.or_, query)).order_by('timestamp').all()
-    z.writestr('decisions.json', serializers.serialize('json', decisions).encode('utf-8'))
+    z.writestr(
+        'decisions.json',
+        serializers.serialize('json', decisions).encode('utf-8'))
 
     z.close()
     fp.write(zip_file.getvalue())
