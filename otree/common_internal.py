@@ -24,7 +24,7 @@ import zipfile
 
 import channels
 import six
-from six import StringIO, BytesIO
+from six import BytesIO, StringIO
 from six.moves import urllib
 
 from django.apps import apps
@@ -183,25 +183,9 @@ def export_data(fp, app_name):
     log_csv.writerows(events)
     z.writestr('log.csv', log.getvalue())
 
-    # roll through timestamps and group in a time window ("tick")
-    # for each tick, calculate mean decision for each participant
-    def calculate_tick(decisions, last_tick):
-        t = -1
-        if last_tick:
-            t = last_tick.tick
-        return {
-            'session': 'foo',
-            'subsession': 'bar',
-            'round': 'baz',
-            'tick': t + 1,
-            'group': 'bang',
-            'participant': 'bat',
-            'mean_decision': 0.5
-        }
-
     decisions = otree.models.Decision.objects.filter(
         functools.reduce(operator.or_, query)).order_by('timestamp').all()
-    z.writestr('decisions.json', serializers.serialize('json', decisions))
+    z.writestr('decisions.json', serializers.serialize('json', decisions).encode('utf-8'))
 
     z.close()
     fp.write(zip_file.getvalue())
