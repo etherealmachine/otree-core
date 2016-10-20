@@ -28,8 +28,9 @@ from otree.common import RealWorldCurrency
 from otree.models_concrete import ParticipantLockModel
 import otree.bots.browser
 
-import otree.firewatch
-otree.firewatch.start()
+from otree.firewatch.watch import start as start_firewatch
+start_firewatch()
+
 
 def gcd(a, b):
     """Return greatest common divisor using Euclid's Algorithm."""

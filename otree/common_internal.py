@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from importlib import import_module
 from os.path import dirname, join
 import collections
@@ -10,7 +10,6 @@ import errno
 import functools
 import hashlib
 import inspect
-import itertools
 import json
 import logging
 import operator
