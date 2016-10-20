@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from six import StringIO
+from six import BytesIO, StringIO
 
 from django.conf import settings
 from django.core.management import call_command
@@ -35,15 +35,15 @@ class TestDataExport(TestCase):
             content_disposition = response["Content-Disposition"]
             content_type = response["content-type"]
 
-            self.assertEqual(content_type, "text/csv")
+            self.assertEqual(content_type, "application/zip")
 
             self.assertTrue(
                 content_disposition.startswith(
                     'attachment; filename="{} ('.format(app_format)))
 
-            buff = StringIO()
+            buff = BytesIO()
             common_internal.export_data(buff, app)
-            self.assertEqual(response.content, buff.getvalue().encode('utf-8'))
+            self.assertEqual(response.content, buff.getvalue())
 
     def test_simple_game_export_data(self):
         self.session_test("simple_game")
