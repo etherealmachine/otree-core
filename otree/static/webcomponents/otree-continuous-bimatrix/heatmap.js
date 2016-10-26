@@ -1,16 +1,12 @@
 // function to generate a heatmap for continuous bimatrix
 // takes the id of a canvas element and an array of payoffs as arguments
 
-function make_heatmap(canvas_id, payoffs, payoff_index) {
+function make_heatmap(canvas_id, payoffs) {
 	var canvas = document.getElementById(canvas_id);
 	var w = canvas.width;
 	var h = canvas.height;
 	var ctx = canvas.getContext('2d');
 
-	// extract the set of payoffs corresponding to this player's payoff index
-	payoffs = payoffs.map(function (current_val) {
-		return current_val[payoff_index];
-	});
 	var max_payoff = Math.max(payoffs[0], payoffs[1], payoffs[2], payoffs[3]);
 
 	// create empty imageData object

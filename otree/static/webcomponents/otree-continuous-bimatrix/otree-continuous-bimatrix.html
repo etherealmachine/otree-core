@@ -75,25 +75,45 @@ Example:
 				margin-left: 15px;
 				float: left;
 			}
-			
-			#bimatrix-container {
-				margin: auto;
+
+			#my-bimatrix-container {
 				width: 420px;
 				height: 420px;
+			}
+
+			#other-bimatrix-container {
+				width: 300px;
+				height: 300px;
+				margin-bottom: 60px;
+				margin-left: 20px;
+			}
+			
+			#my-bimatrix-container, #other-bimatrix-container {
+				display: inline-block;
 				border: solid 2px orange;
 			}
 
-			#heatmap {
-				position: relative;
+			#my-heatmap {
 				width: 360px;
 				height: 360px;
 				margin-right: 15px;
-				margin-top: 30px;
 				float: right;
 			}
 
-			#canvas {
+			#other-heatmap {
+				width: 240px;
+				height: 240px;
+				margin: auto;
+			}
+
+			#my-heatmap, #other-heatmap {
+				position: relative;
+				margin-top: 30px;
+			}
+
+			#my-canvas, #other-canvas {
 				position: absolute;
+				display: block;
 			}
 
 			#my-val {
@@ -122,16 +142,29 @@ Example:
 
     <otree-log id="log"></otree-log>
 
-		<div id="bimatrix-container">
-			<input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
-			<div id="heatmap">
-				<canvas width="360" height="360" id="canvas"></canvas>
-				<span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
-				<span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
-				<span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
-				<span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
-				<div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
-				<div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
+		<div style="text-align: center">
+			<div id="my-bimatrix-container">
+				<input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
+				<div id="my-heatmap">
+					<canvas width="360" height="360" id="my-canvas"></canvas>
+					<span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
+					<span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
+					<span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
+					<span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
+					<div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
+					<div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
+				</div>
+			</div>
+			<div id="other-bimatrix-container" style="display: none">
+				<div id="other-heatmap">
+					<canvas width="240" height="240" id="other-canvas"></canvas>
+					<span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, otherPayoffIndex)]]</span>
+					<span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 2, otherPayoffIndex)]]</span>
+					<span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 1, otherPayoffIndex)]]</span>
+					<span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, otherPayoffIndex)]]</span>
+					<div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
+					<div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
+				</div>
 			</div>
 		</div>
 
@@ -144,7 +177,7 @@ Example:
 				rowLabels: Array,
 				payoffMatrix: Array,
 				payoffIndex: Number,
-				my_decision: Number,
+				opponentHeatmap: String,
 				decisions: {
 					type: Object,
 					observer: '_decisionsChanged'
@@ -164,7 +197,25 @@ Example:
 					'/decisions');
 				this.my_decision = .5;
 				this.other_decision = .5;
-				make_heatmap("canvas", this.payoffMatrix, this.payoffIndex);
+				this.otherPayoffIndex = this.payoffIndex == 0 ? 1 : 0;
+
+				// extract the set of payoffs corresponding to this player's payoff index
+				my_payoffs = this.payoffMatrix.map(function (current_val) {
+					return current_val[this.payoffIndex];
+				}, this);
+				make_heatmap("my-canvas", my_payoffs);
+
+				if (this.opponentHeatmap == "true") {
+					this.$["other-bimatrix-container"].style.display = "";
+					other_payoffs = this.payoffMatrix.map(function (current_val) {
+						return current_val[this.otherPayoffIndex];
+					}, this);
+					var tmp = other_payoffs[1];
+					other_payoffs[1] = other_payoffs[2];
+					other_payoffs[2] = tmp;
+					make_heatmap("other-canvas", other_payoffs);
+				}
+
 			},
 			_equals(d, decision) {
 				return d == decision;
