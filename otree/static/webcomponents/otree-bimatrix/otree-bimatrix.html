@@ -91,10 +91,10 @@ Example:
 						value="0">
 				</td>
 				<td class$="[[_highlight(decisions, 0, 0)]]">
-					[[_payoff(payoffMatrix.*, 0, 0)]], [[_payoff(payoffMatrix.*, 0, 1)]]
+					[[_payoff(payoffMatrix.*, 0, payoffIndex)]], [[_payoff(payoffMatrix.*, 0, otherPayoffIndex)]]
 				</td>
 				<td class$="[[_highlight(decisions, 0, 1)]]">
-					[[_payoff(payoffMatrix.*, 1, 0)]], [[_payoff(payoffMatrix.*, 1, 1)]]
+					[[_payoff(payoffMatrix.*, 1, payoffIndex)]], [[_payoff(payoffMatrix.*, 1, otherPayoffIndex)]]
 				</td>
 			</tr>
 			<tr>
@@ -108,10 +108,10 @@ Example:
 						value="1">
 				</td>
 				<td class$="[[_highlight(decisions, 1, 0)]]">
-					[[_payoff(payoffMatrix.*, 2, 0)]], [[_payoff(payoffMatrix.*, 2, 1)]]
+					[[_payoff(payoffMatrix.*, 2, payoffIndex)]], [[_payoff(payoffMatrix.*, 2, otherPayoffIndex)]]
 				</td>
 				<td class$="[[_highlight(decisions, 1, 1)]]">
-					[[_payoff(payoffMatrix.*, 3, 0)]], [[_payoff(payoffMatrix.*, 3, 1)]]
+					[[_payoff(payoffMatrix.*, 3, payoffIndex)]], [[_payoff(payoffMatrix.*, 3, otherPayoffIndex)]]
 				</td>
 			</tr>
 		</table>
@@ -139,6 +139,8 @@ Example:
 					'/round/' + this.$.vars.round +
 					'/group/' + this.$.vars.group +
 					'/decisions');
+
+                this.otherPayoffIndex = this.payoffIndex == 0 ? 1 : 0;
 			},
 			_equals(d, decision) {
 				return d == decision;
