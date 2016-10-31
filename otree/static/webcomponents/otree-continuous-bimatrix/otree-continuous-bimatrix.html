@@ -77,7 +77,7 @@ Example:
             }
 
             #my-bimatrix-container {
-                width: 420px;
+                width: 430px;
                 height: 420px;
             }
 
@@ -119,21 +119,23 @@ Example:
             #my-val {
                 position: absolute;
                 bottom: 0;
-                width: 100%;
+                left: -2%;
+                width: 104%;
                 border-top: 2px solid black;
             }
 
             #other-val {
                 position: absolute;
-                height: 100%;
+                height: 104%;
                 right: 0;
+                top: -2%;
                 border-left: 2px solid black;
             }
 
         </style>
 
-        <firebase-document
-                id="fbdoc"
+    <firebase-document
+          id="fbdoc"
           path="[[path_]]"
           data="{{decisions}}">
     </firebase-document>
@@ -147,10 +149,10 @@ Example:
                 <input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
                 <div id="my-heatmap">
                     <canvas width="360" height="360" id="my-canvas"></canvas>
-                    <span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
-                    <span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
-                    <span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
-                    <span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
+                    <span class="payoff_labels" style="top: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
+                    <span class="payoff_labels" style="top: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
+                    <span class="payoff_labels" style="bottom: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
+                    <span class="payoff_labels" style="bottom: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
                     <div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
                     <div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
                 </div>
@@ -158,10 +160,10 @@ Example:
             <div id="other-bimatrix-container" style="display: none">
                 <div id="other-heatmap">
                     <canvas width="240" height="240" id="other-canvas"></canvas>
-                    <span class="payoff_labels" style="top: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 0, otherPayoffIndex)]]</span>
-                    <span class="payoff_labels" style="top: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 2, otherPayoffIndex)]]</span>
-                    <span class="payoff_labels" style="bottom: -20px; left: 10px;">[[_payoff(payoffMatrix.*, 1, otherPayoffIndex)]]</span>
-                    <span class="payoff_labels" style="bottom: -20px; right: 10px;">[[_payoff(payoffMatrix.*, 3, otherPayoffIndex)]]</span>
+                    <span class="payoff_labels" style="top: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 0, otherPayoffIndex)]]</span>
+                    <span class="payoff_labels" style="top: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 2, otherPayoffIndex)]]</span>
+                    <span class="payoff_labels" style="bottom: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 1, otherPayoffIndex)]]</span>
+                    <span class="payoff_labels" style="bottom: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 3, otherPayoffIndex)]]</span>
                     <div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
                     <div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
                 </div>
