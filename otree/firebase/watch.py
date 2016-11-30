@@ -55,6 +55,7 @@ def start():
     t.daemon = True
     t.start()
 
+
 _DECISION_RE = re.compile(
     '/component/(?P<component>.*)' +
     '/session/(?P<session>.*)' +
@@ -79,6 +80,7 @@ def _handleDecisionEvent(match, data):
     d.decision = data
     d.save()
 
+
 _LOG_RE = re.compile('/log/(?P<session>.*)/.*')
 
 
@@ -92,6 +94,7 @@ def _handleLogEvent(match, data):
     event.participant = Participant.objects.get(code=data['participant_code'])
     event.event = data['event']
     event.save()
+
 
 _matchers = [
   (_DECISION_RE, _handleDecisionEvent),

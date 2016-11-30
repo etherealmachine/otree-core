@@ -89,6 +89,7 @@ def add_class(var, css_class, *extra_css_classes):
     except Resolver404:
         return ""
 
+
 NO_USER_MSG = '''
 Before logging in, you must create a user by setting ADMIN_USERNAME and
 ADMIN_PASSWORD in settings.py

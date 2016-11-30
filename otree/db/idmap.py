@@ -63,6 +63,7 @@ class SharedMemoryModel(idmap.models.SharedMemoryModel):
         if is_active():
             return idmap.tls.get_cached_instance(cls, pk)
 
+
 CLASSES_TO_SAVE = {
     'Session',
     'Participant',

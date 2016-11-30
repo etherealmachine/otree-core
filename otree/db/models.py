@@ -71,6 +71,7 @@ class OTreeModel(six.with_metaclass(OTreeModelBase, SharedMemoryModel)):
     class Meta:
         abstract = True
 
+
 Model = OTreeModel
 
 

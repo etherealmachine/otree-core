@@ -199,4 +199,5 @@ def get_room_dict():
         ROOM_DICT[room_object.name] = room_object
     return ROOM_DICT
 
+
 ROOM_DICT = get_room_dict()

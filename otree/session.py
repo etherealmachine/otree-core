@@ -163,6 +163,7 @@ def get_session_configs_dict():
         SESSION_CONFIGS_DICT[config_dict['name']] = config_obj
     return SESSION_CONFIGS_DICT
 
+
 SESSION_CONFIGS_DICT = get_session_configs_dict()
 
 

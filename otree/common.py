@@ -30,6 +30,7 @@ def otree_number_format(number, *args, **kwargs):
         return six.text_type(number)
     return _original_number_format(number, *args, **kwargs)
 
+
 numberformat.format = otree_number_format
 
 
