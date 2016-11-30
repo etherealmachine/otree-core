@@ -28,7 +28,7 @@ from otree.common import RealWorldCurrency
 from otree.models_concrete import ParticipantLockModel
 import otree.bots.browser
 
-from otree.firewatch.watch import start as start_firewatch
+from otree.firebase.watch import start as start_firewatch
 start_firewatch()
 
 

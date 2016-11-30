@@ -1,5 +1,5 @@
 """
-Firewatch watches the oTree firebase for changes.
+Watches the oTree firebase for changes.
 It looks for two types of objects: logs and decision vectors.
 All objects are scoped by the session.
 

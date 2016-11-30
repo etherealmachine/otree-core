@@ -140,6 +140,7 @@ def export_data(fp, app_name):
         stream.json:
     """
     # Defer import to runtime to avoid weird interaction with settings.py
+    from otree.firebase.ticks import collect_ticks
     from otree.models.log import LogEvent
     from otree.views.admin import get_display_table_rows
 
@@ -183,11 +184,24 @@ def export_data(fp, app_name):
     log_csv.writerows(events)
     z.writestr('log.csv', log.getvalue())
 
+    # all decisions are written out as a JSON array
+    # to decisions.json
     decisions = otree.models.Decision.objects.filter(
         functools.reduce(operator.or_, query)).order_by('timestamp').all()
     z.writestr(
         'decisions.json',
         serializers.serialize('json', decisions).encode('utf-8'))
+
+    # decisions are also collected into ticks and written out to
+    # the tickfile for easier analysis (ticks.csv)
+    tickfile = StringIO()
+    header, ticks = collect_ticks(decisions)
+    tickfile_csv = csv.DictWriter(tickfile, header)
+    tickfile_csv.writeheader()
+    tickfile_csv.writerows(ticks)
+    z.writestr(
+        'ticks.csv',
+        tickfile.getvalue())
 
     z.close()
     fp.write(zip_file.getvalue())
