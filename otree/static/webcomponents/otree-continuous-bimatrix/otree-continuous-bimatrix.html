@@ -191,11 +191,12 @@ Example:
             },
             ready: function() {
                 this.path_ = (
-                    '/component/otree-bimatrix' +
                     '/session/' + this.$.vars.session +
+                    '/app/' + this.$.vars.appName +
                     '/subsession/' + this.$.vars.subsession +
                     '/round/' + this.$.vars.round +
                     '/group/' + this.$.vars.group +
+                    '/component/otree-bimatrix' +
                     '/decisions');
                 this.my_decision = .5;
                 this.other_decision = .5;

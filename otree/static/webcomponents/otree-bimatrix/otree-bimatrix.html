@@ -133,12 +133,13 @@ Example:
 			},
 			ready: function() {
 				this.path_ = (
-					'/component/otree-bimatrix' +
 					'/session/' + this.$.vars.session +
-					'/subsession/' + this.$.vars.subsession +
+					'/app/' + this.$.vars.appName +
+                    '/subsession/' + this.$.vars.subsession +
 					'/round/' + this.$.vars.round +
 					'/group/' + this.$.vars.group +
-					'/decisions');
+					'/component/otree-bimatrix' +
+                    '/decisions');
 
                 this.otherPayoffIndex = this.payoffIndex == 0 ? 1 : 0;
 			},
