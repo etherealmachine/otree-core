@@ -31,7 +31,7 @@ def start_emitter(waitPage, period_length, num_subperiods):
         waitPage.subsession.app_name,
         waitPage.subsession.id,
         waitPage.group.id_in_subsession)
-    if not path in _emitters:
+    if path not in _emitters:
         _emitters[path] = Emitter(path, period_length, num_subperiods)
         _emitters[path].start()
 
