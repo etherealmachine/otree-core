@@ -26,7 +26,13 @@ _emitters = {}
 
 
 def start_emitter(waitPage, period_length, num_subperiods):
-    path = '/session/%s/app/%s/subsession/%s/round/%s/group/%s/page/%s/subperiods' % (
+    path = ('/session/%s' +
+        '/app/%s' +
+        '/subsession/%s' +
+        '/round/%s' +
+        '/group/%s' +
+        '/page/%s' +
+        '/subperiods') % (
         waitPage.session.code,
         waitPage.subsession.app_name,
         waitPage.subsession.id,
@@ -55,7 +61,7 @@ class Emitter(threading.Thread):
             self.subperiod += 1
             event = {
                 'id': self.subperiod,
-                'decisions': [] # TODO: Aggregated decision vectors.
+                'decisions': []  # TODO: Aggregated decision vectors.
             }
             self.firebase.put(self.path, self.subperiod, event)
         return
