@@ -34,7 +34,7 @@
     <!-- Initialize otree variables and Firebase -->
     <otree-vars
         session="{{ session.code }}"
-        subsession="{{ subsession }}"
+        subsession="{{ subsession.id }}"
         round="{{ player.round_number }}"
         group="{{ player.group.id_in_subsession }}"
         role="{{ player.role }}"
@@ -52,5 +52,9 @@
     <link
         rel="import"
         href="{% static 'webcomponents/otree-continuous-bimatrix/otree-continuous-bimatrix.html' %}" />
+    <link
+        rel="import"
+        href="{% static 'webcomponents/otree-subperiods/otree-subperiods.html' %}" />
+
 
 {% endblock %}

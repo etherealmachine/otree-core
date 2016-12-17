@@ -18,8 +18,8 @@
 		var group = undefined;
 		var role = undefined;
 		var participantCode = undefined;
-        var appName = undefined;
-        var page = undefined;
+    var appName = undefined;
+    var page = undefined;
 
 		Polymer({
 			is: 'otree-vars',
@@ -36,10 +36,10 @@
 				role: String,
 				/** Participant's unique subject code, e.g. {{ player.participant.code }} */
 				participantCode: String,
-                /** Current app name, e.g. {{ subsession.app_name }} */
-                appName: String,
-                /** Current page name. TODO: fill with actual page value */
-                page: String
+        /** Current app name, e.g. {{ subsession.app_name }} */
+        appName: String,
+        /** Current page name. TODO: fill with actual page value */
+        page: String
 			},
 			ready: function() {
 				if (session === undefined) {

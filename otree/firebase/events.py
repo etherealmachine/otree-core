@@ -26,11 +26,13 @@ _emitters = {}
 
 
 def start_emitter(waitPage, period_length, num_subperiods):
-    path = '/session/%s/app/%s/subsession/%s/group/%s/subperiod' % (
+    path = '/session/%s/app/%s/subsession/%s/round/%s/group/%s/page/%s/subperiods' % (
         waitPage.session.code,
         waitPage.subsession.app_name,
         waitPage.subsession.id,
-        waitPage.group.id_in_subsession)
+        waitPage.round_number,
+        waitPage.group.id_in_subsession,
+        'tmp')
     if path not in _emitters:
         _emitters[path] = Emitter(path, period_length, num_subperiods)
         _emitters[path].start()
@@ -52,7 +54,8 @@ class Emitter(threading.Thread):
             time.sleep(self.subperiod_length)
             self.subperiod += 1
             event = {
-                'TODO': 'aggregated subperiod decisions',
+                'id': self.subperiod,
+                'decisions': [] # TODO: Aggregated decision vectors.
             }
             self.firebase.put(self.path, self.subperiod, event)
         return
