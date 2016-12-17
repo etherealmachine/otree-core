@@ -57,11 +57,13 @@ def start():
 
 
 _DECISION_RE = re.compile(
-    '/component/(?P<component>.*)' +
     '/session/(?P<session>.*)' +
+    '/app/(?P<app>.*)' +
     '/subsession/(?P<subsession>.*)' +
     '/round/(?P<round>.*)' +
     '/group/(?P<group>.*)' +
+    '/page/(?P<page>.*)' +
+    '/component/(?P<component>.*)' +
     '/decisions/(?P<participant_code>.*)')
 
 
@@ -77,7 +79,10 @@ def _handleDecisionEvent(match, data):
     d.round = int(g['round'])
     d.group = int(g['group'])
     d.participant = Participant.objects.get(code=g['participant_code'])
+    d.app = g['app']
+    d.page = g['page']
     d.decision = data
+
     d.save()
 
 

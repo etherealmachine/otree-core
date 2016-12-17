@@ -16,5 +16,7 @@ class Decision(models.Model):
     subsession = models.IntegerField(null=True)
     round = models.IntegerField(null=False)
     group = models.IntegerField(null=False)
+    page = models.CharField(max_length=100, null=False)
+    app = models.CharField(max_length=100, null=False)
     participant = models.ForeignKey('otree.Participant', null=False)
     decision = models.JSONField(null=False)
