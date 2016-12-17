@@ -128,7 +128,6 @@ class Thread(threading.Thread):
                 for (regex, handlerFunc) in _matchers:
                     match = regex.match(data['path'])
                     if match:
-                        handlerFunc(match, data['data'])
                         matches.append((handlerFunc, match, data['data']))
                 if len(matches) == 0:
                     logger.warning(
