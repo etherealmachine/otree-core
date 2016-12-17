@@ -27,12 +27,12 @@ _emitters = {}
 
 def start_emitter(waitPage, period_length, num_subperiods):
     path = ('/session/%s' +
-        '/app/%s' +
-        '/subsession/%s' +
-        '/round/%s' +
-        '/group/%s' +
-        '/page/%s' +
-        '/subperiods') % (
+            '/app/%s' +
+            '/subsession/%s' +
+            '/round/%s' +
+            '/group/%s' +
+            '/page/%s' +
+            '/subperiods') % (
         waitPage.session.code,
         waitPage.subsession.app_name,
         waitPage.subsession.id,
@@ -59,9 +59,13 @@ class Emitter(threading.Thread):
         while self.subperiod < self.num_subperiods:
             time.sleep(self.subperiod_length)
             self.subperiod += 1
+            # TODO: From watch.py, pull the last decision for every subject in
+            # the group. This will be the canonical decision for that subject
+            # in the given subperiod.
+            decisions = []
             event = {
                 'id': self.subperiod,
-                'decisions': []  # TODO: Aggregated decision vectors.
+                'decisions': decisions
             }
             self.firebase.put(self.path, self.subperiod, event)
         return
