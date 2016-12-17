@@ -33,4 +33,6 @@ otree runserver
 See [this](http://otree.readthedocs.io/en/latest/django.html)
 document that explains how oTree differs from a typical Django project.
 
+## Status
+
 [![Build Status](https://travis-ci.org/Leeps-Lab/otree-core.svg?branch=master)](https://travis-ci.org/Leeps-Lab/otree-core)
