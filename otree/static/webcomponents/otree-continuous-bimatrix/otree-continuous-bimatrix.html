@@ -1,15 +1,15 @@
 <link
         rel="import"
-        href="/static/bower_components/polymer/polymer.html" />
+        href="/static/bower_components/polymer/polymer.html"/>
 <link
         rel="import"
-        href="/static/bower_components/polymerfire/firebase-document.html" />
+        href="/static/bower_components/polymerfire/firebase-document.html"/>
 <link
         rel="import"
-        href="/static/webcomponents/otree-vars/otree-vars.html" />
+        href="/static/webcomponents/otree-vars/otree-vars.html"/>
 <link
         rel="import"
-        href="/static/webcomponents/otree-log/otree-log.html" />
+        href="/static/webcomponents/otree-log/otree-log.html"/>
 
 <script src="heatmap.js"></script>
 
@@ -48,17 +48,17 @@ Example:
 
     <template>
 
-    <link rel="stylesheet" type="text/css" href="styles.css">
+        <link rel="stylesheet" type="text/css" href="styles.css">
 
-    <firebase-document
-          id="fbdoc"
-          path="[[path_]]"
-          data="{{decisions}}">
-    </firebase-document>
+        <firebase-document
+                id="fbdoc"
+                path="[[path_]]"
+                data="{{ decisions }}">
+        </firebase-document>
 
-    <otree-vars id="vars"></otree-vars>
+        <otree-vars id="vars"></otree-vars>
 
-    <otree-log id="log"></otree-log>
+        <otree-log id="log"></otree-log>
 
         <div style="text-align: center">
             <div id="my-bimatrix-container">
@@ -103,18 +103,18 @@ Example:
                 path_: String
             },
             listeners: {
-                'keyup' : '_setMyDecision'
+                'keyup': '_setMyDecision'
             },
-            ready: function() {
+            ready: function () {
                 this.path_ = (
-                    '/session/' + this.$.vars.session +
-                    '/app/' + this.$.vars.appName +
-                    '/subsession/' + this.$.vars.subsession +
-                    '/round/' + this.$.vars.round +
-                    '/group/' + this.$.vars.group +
-                    '/page/' + this.$.vars.page +
-                    '/component/otree-bimatrix' +
-                    '/decisions');
+                '/session/' + this.$.vars.session +
+                '/app/' + this.$.vars.appName +
+                '/subsession/' + this.$.vars.subsession +
+                '/round/' + this.$.vars.round +
+                '/group/' + this.$.vars.group +
+                '/page/' + this.$.vars.page +
+                '/component/otree-bimatrix' +
+                '/decisions');
                 this.my_decision = .5;
                 this.other_decision = .5;
                 this.otherPayoffIndex = this.payoffIndex == 0 ? 1 : 0;
@@ -174,7 +174,7 @@ Example:
             _calcPercent(decision) {
                 return decision * 100 + "%";
             },
-            _payoff: function(change, x, y) {
+            _payoff: function (change, x, y) {
                 return change.base[x][y];
             }
         });
