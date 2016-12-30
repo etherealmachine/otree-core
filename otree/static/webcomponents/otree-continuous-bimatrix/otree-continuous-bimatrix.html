@@ -50,29 +50,57 @@ Example:
 
         <link rel="stylesheet" type="text/css" href="styles.css">
 
+        <!--
+        polymer element to interface with firebase
+        takes a path as its path attribute and makes data reflect whatever is stored in firebase at that path-->
         <firebase-document
                 id="fbdoc"
                 path="[[path_]]"
                 data="{{ decisions }}">
         </firebase-document>
 
+        <!--
+        polymer element with useful otree variables as attributes (current group, round, etc.)
+        -->
         <otree-vars id="vars"></otree-vars>
 
         <otree-log id="log"></otree-log>
 
+        <!--
+        container for both heatmaps
+        only contains this player's heatmap if the opponent heatmap option is not specified
+        -->
         <div style="text-align: center">
             <div id="my-bimatrix-container">
+                <!--
+                slider for choosing strategy
+                -->
                 <input id="slider" type="range" min="0" max="1" step=".01" defaultValue=".5" on-up="_setMyDecision"/>
                 <div id="my-heatmap">
+                    <!--
+                    canvas will be filled with heatmap in javascript
+                    see heatmap.js
+                    -->
                     <canvas width="360" height="360" id="my-canvas"></canvas>
+                    <!--
+                    labels showing payoff at each corner of heatmap
+                    -->
                     <span class="payoff_labels" style="top: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 0, payoffIndex)]]</span>
                     <span class="payoff_labels" style="top: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 1, payoffIndex)]]</span>
                     <span class="payoff_labels" style="bottom: -25px; left: 10px;">[[_payoff(payoffMatrix.*, 2, payoffIndex)]]</span>
                     <span class="payoff_labels" style="bottom: -25px; right: 10px;">[[_payoff(payoffMatrix.*, 3, payoffIndex)]]</span>
+                    <!--
+                    lines showing current strategy and opponent's strategy
+                    set height or width using data binding and set a border on only one side to make a moving line
+                    -->
                     <div id="my-val" style$="height: [[_calcPercent(my_decision)]];"></div>
                     <div id="other-val" style$="width: [[_calcPercent(other_decision)]];"></div>
                 </div>
             </div>
+            <!--
+            other heatmap is exactly the same as this player's, just smaller
+            container is hidden by default, but is unhidden in js if opponent heatmap option is chosen
+            -->
             <div id="other-bimatrix-container" style="display: none">
                 <div id="other-heatmap">
                     <canvas width="240" height="240" id="other-canvas"></canvas>
@@ -92,20 +120,28 @@ Example:
         Polymer({
             is: 'otree-continuous-bimatrix',
             properties: {
+                // labels for strategies. not currently being used
                 rowLabels: Array,
+                // 2x2 array of payoffs for each player. see block comment at top for details
                 payoffMatrix: Array,
+                // index describing which entry in payoff matrix is to be used by this player
                 payoffIndex: Number,
+                // boolean to choose whether or not to show opponent's heatmap
                 opponentHeatmap: String,
+                // associative array relating participant code to current decision
+                // holds this player's decision and the opponent's decision
                 decisions: {
                     type: Object,
                     observer: '_decisionsChanged'
                 },
+                // path to use with firebase
                 path_: String
             },
             listeners: {
                 'keyup': '_setMyDecision'
             },
             ready: function () {
+                // set firebase path to appropriate scope
                 this.path_ = (
                 '/session/' + this.$.vars.session +
                 '/app/' + this.$.vars.appName +
@@ -115,16 +151,18 @@ Example:
                 '/page/' + this.$.vars.page +
                 '/component/otree-bimatrix' +
                 '/decisions');
+                // variables for this player's decision and the opponent's decision
                 this.my_decision = .5;
                 this.other_decision = .5;
                 this.otherPayoffIndex = this.payoffIndex == 0 ? 1 : 0;
 
-                // extract the set of payoffs corresponding to this player's payoff index
+                // extract the set of payoffs corresponding to this player's payoff index and display this player's heatmap
                 my_payoffs = this.payoffMatrix.map(function (current_val) {
                     return current_val[this.payoffIndex];
                 }, this);
                 make_heatmap("my-canvas", my_payoffs);
 
+                // if opponentHeatmap is true, get other player's payoffs and display their heatmap
                 if (this.opponentHeatmap == "true") {
                     this.$["other-bimatrix-container"].style.display = "";
                     other_payoffs = this.payoffMatrix.map(function (current_val) {
@@ -137,26 +175,33 @@ Example:
                 }
 
             },
+            // compare two decisions
             _equals(d, decision) {
                 return d == decision;
             },
+            // set my current decision. triggered by the player releasing the slider
             _setMyDecision(event) {
                 if (event.type === 'keyup' && !(event.key === 'ArrowDown') && !(event.key === 'ArrowUp')) {
                     return;
                 }
                 var d = parseFloat(event.target.value);
+                // if decisions hasn't been created yet, create it
                 if (this.decisions === null) {
                     this.decisions = {};
                 }
+                // pcode is this player's participant code
                 var pcode = this.$.vars.participantCode;
+                // use polymer this.set to change decisions. I don't really know why I have to do this but it doesn't work if I don't
                 this.set('decisions.' + pcode, d);
                 this.my_decision = d;
             },
+            // listener on firebase decisions array. reacts to the opponent changing their strategy
             _decisionsChanged() {
                 if (this.decisions === null) {
                     return;
                 }
                 var pcode = this.$.vars.participantCode;
+                // if I haven't set a decision yet, use my decision from firebase. here in case someone refreshes the page
                 if (this.decisions[pcode]) {
                     this.my_decision = this.decisions[pcode];
                     this.$.slider.value = this.my_decision;
@@ -171,9 +216,11 @@ Example:
                     }
                 }
             },
+            // format a decision as a CSS percent value
             _calcPercent(decision) {
                 return decision * 100 + "%";
             },
+            // returns a specific entry in the payoff table. I don't really know what's going on here, it's more polymer weirdness
             _payoff: function (change, x, y) {
                 return change.base[x][y];
             }
