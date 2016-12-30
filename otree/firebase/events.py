@@ -26,11 +26,19 @@ _emitters = {}
 
 
 def start_emitter(waitPage, period_length, num_subperiods):
-    path = '/session/%s/app/%s/subsession/%s/group/%s/subperiod' % (
+    path = ('/session/%s' +
+            '/app/%s' +
+            '/subsession/%s' +
+            '/round/%s' +
+            '/group/%s' +
+            '/page/%s' +
+            '/subperiods') % (
         waitPage.session.code,
         waitPage.subsession.app_name,
         waitPage.subsession.id,
-        waitPage.group.id_in_subsession)
+        waitPage.round_number,
+        waitPage.group.id_in_subsession,
+        'tmp')
     if path not in _emitters:
         _emitters[path] = Emitter(path, period_length, num_subperiods)
         _emitters[path].start()
@@ -51,8 +59,13 @@ class Emitter(threading.Thread):
         while self.subperiod < self.num_subperiods:
             time.sleep(self.subperiod_length)
             self.subperiod += 1
+            # TODO: From watch.py, pull the last decision for every subject in
+            # the group. This will be the canonical decision for that subject
+            # in the given subperiod.
+            decisions = []
             event = {
-                'TODO': 'aggregated subperiod decisions',
+                'id': self.subperiod,
+                'decisions': decisions
             }
             self.firebase.put(self.path, self.subperiod, event)
         return
