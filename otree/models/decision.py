@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from otree.db import models
+from django.utils import timezone
 
 
 class Decision(models.Model):
@@ -10,7 +11,7 @@ class Decision(models.Model):
         # if i don't set this, it could be in an unpredictable order
         ordering = ['pk']
 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(null=False)
     component = models.CharField(max_length=100, null=False)
     session = models.CharField(max_length=100, null=False)
     subsession = models.IntegerField(null=True)
@@ -20,3 +21,8 @@ class Decision(models.Model):
     app = models.CharField(max_length=100, null=False)
     participant = models.ForeignKey('otree.Participant', null=False)
     decision = models.JSONField(null=False)
+
+    def save(self, *args, **kwargs):
+        if self.timestamp is None:
+            self.timestamp = timezone.now()
+        super(Decision, self).save(*args, **kwargs)
