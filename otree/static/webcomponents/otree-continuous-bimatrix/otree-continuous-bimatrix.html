@@ -13,6 +13,8 @@
 
 <script src="heatmap.js"></script>
 
+<script src="jquery.min.js"></script>
+<script src="jquery.flot.min.js"></script>
 <!--
 `<otree-bimatrix>` lets subjects select a strategy from a set of
 possibilities. Their decision and the results are  displayed using the usual
@@ -114,6 +116,8 @@ Example:
             </div>
         </div>
 
+        <div id="graph" style="width: 600px; height: 300px;"></div>
+
     </template>
 
     <script>
@@ -135,7 +139,8 @@ Example:
                     observer: '_decisionsChanged'
                 },
                 // path to use with firebase
-                path_: String
+                path_: String,
+                periodLength: Number
             },
             listeners: {
                 'keyup': '_setMyDecision'
@@ -174,6 +179,10 @@ Example:
                     make_heatmap("other-canvas", other_payoffs);
                 }
 
+                // run graph setup function with delay so that it runs after display is rendered
+                window.setTimeout(this._setupGraph.bind(this), 100);
+                // save start time to reference later
+                this.start_time = Date.now();
             },
             // compare two decisions
             _equals(d, decision) {
@@ -194,6 +203,15 @@ Example:
                 // use polymer this.set to change decisions. I don't really know why I have to do this but it doesn't work if I don't
                 this.set('decisions.' + pcode, d);
                 this.my_decision = d;
+
+                // get current dataset from graph objet
+                var dataset = this.graph_obj.getData();
+                // calculate new decision's timestamp as a value between 0 and 1
+                var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+                // add new decision to graph
+                dataset[0].data.push([xval, d]);
+                this.graph_obj.setData(dataset);
+                this.graph_obj.draw();
             },
             // listener on firebase decisions array. reacts to the opponent changing their strategy
             _decisionsChanged() {
@@ -212,6 +230,12 @@ Example:
                 for (var key in this.decisions) {
                     if (key != pcode) {
                         this.other_decision = this.decisions[key];
+
+                        var dataset = this.graph_obj.getData();
+                        var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+                        dataset[1].data.push([xval, this.other_decision]);
+                        this.graph_obj.setData(dataset);
+                        this.graph_obj.draw();
                         break;
                     }
                 }
@@ -223,6 +247,27 @@ Example:
             // returns a specific entry in the payoff table. I don't really know what's going on here, it's more polymer weirdness
             _payoff: function (change, x, y) {
                 return change.base[x][y];
+            },
+            _setupGraph() {
+                this.graph_obj = $.plot(
+                        $(this.$.graph),
+                        [ [[0, .5]], [[0, .5]] ],
+                        {
+                            series: {
+                                shadowSize: 0,
+                                lines: { steps: true }
+                            },
+                            xaxis: {
+                                show: false,
+                                min: 0,
+                                max: 1
+                            },
+                            yaxis: {
+                                min: 0,
+                                max: 1
+                            }
+                        }
+                )
             }
         });
     </script>
