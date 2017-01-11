@@ -204,11 +204,15 @@ Example:
                 this.set('decisions.' + pcode, d);
                 this.my_decision = d;
 
-                // get current dataset from graph objet
+                // get current dataset from graph object
                 var dataset = this.graph_obj.getData();
                 // calculate new decision's timestamp as a value between 0 and 1
                 var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
-                // add new decision to graph
+                // remove previous current value data point
+                dataset[0].data.pop();
+                // add new decision
+                dataset[0].data.push([xval, d]);
+                // add another copy to be the new current value (will be updated by _updateGraph)
                 dataset[0].data.push([xval, d]);
                 this.graph_obj.setData(dataset);
                 this.graph_obj.draw();
@@ -231,8 +235,12 @@ Example:
                     if (key != pcode) {
                         this.other_decision = this.decisions[key];
 
+                        // update decision graph with other player's decision
+                        // same process as in _setMyDecision
                         var dataset = this.graph_obj.getData();
                         var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+                        dataset[1].data.pop();
+                        dataset[1].data.push([xval, this.other_decision]);
                         dataset[1].data.push([xval, this.other_decision]);
                         this.graph_obj.setData(dataset);
                         this.graph_obj.draw();
@@ -249,9 +257,14 @@ Example:
                 return change.base[x][y];
             },
             _setupGraph() {
+                // call flot setup function
                 this.graph_obj = $.plot(
+                        // pass graph div as jquery object
                         $(this.$.graph),
-                        [ [[0, .5]], [[0, .5]] ],
+                        // set initial data for both decision plots
+                        // put two copies of start value because second copy represents the current decision and will be updated by _updateGraph
+                        [ [[0, .5], [0, .5]], [[0, .5], [0, .5]] ],
+                        // set flot graph options
                         {
                             series: {
                                 shadowSize: 0,
@@ -267,7 +280,32 @@ Example:
                                 max: 1
                             }
                         }
-                )
+                );
+
+                // start update function
+                this._updateGraph();
+            },
+            _updateGraph() {
+                var dataset = this.graph_obj.getData();
+                // calculate x value for current time
+                var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+
+                // for both decision graphs
+                for (i in [0, 1]) {
+                    // get last element in data set
+                    var cur_data = dataset[i].data.pop();
+                    // update x value to current time
+                    cur_data[0] = xval;
+                    // put updated element back in data set
+                    dataset[i].data.push(cur_data);
+                }
+
+                // update data and redraw
+                this.graph_obj.setData(dataset);
+                this.graph_obj.draw();
+
+                // recursively call update after a delay
+                window.setTimeout(this._updateGraph.bind(this), 50);
             }
         });
     </script>
