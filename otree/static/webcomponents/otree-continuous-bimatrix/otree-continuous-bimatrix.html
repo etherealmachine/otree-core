@@ -242,7 +242,7 @@ Example:
                     chart: {
                         animation: false,
                         renderTo: 'graph',
-                        type: 'line',
+                        type: 'area',
                     },
                     title: { text: null },
                     exporting: { enabled: false },
@@ -287,6 +287,7 @@ Example:
 
                 // recursively call update after a delay
                 window.setTimeout(this._updateGraph.bind(this), 50);
+                console.log(dataset.data);
             },
             // is called everytime someone's decision changes and update payoff graph
             _graphUpdatePayoffs() {
