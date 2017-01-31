@@ -114,7 +114,10 @@ Example:
             </div>
         </div>
 
-        <div id="graph" style="width: 600px; height: 300px;"></div>
+        <div class="graph-container">
+            <canvas id="thermometer"></canvas>
+            <div id="graph"></div>
+        </div>
 
     </template>
 
@@ -176,6 +179,10 @@ Example:
                     other_payoffs[2] = tmp;
                     make_heatmap("other-canvas", other_payoffs);
                 }
+
+                // initialize thermometer
+
+                make_thermometer("thermometer");
 
                 // run graph setup function with delay so that it runs after display is rendered
                 window.setTimeout(this._setupGraph.bind(this), 100);
