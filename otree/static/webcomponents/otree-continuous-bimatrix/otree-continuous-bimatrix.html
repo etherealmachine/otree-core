@@ -146,7 +146,7 @@ Example:
             listeners: {
                 'keyup': '_setMyDecision'
             },
-            ready: function () {
+            ready() {
                 // set firebase path to appropriate scope
                 this.path_ = (
                 '/session/' + this.$.vars.session +
@@ -181,13 +181,11 @@ Example:
                 }
 
                 // initialize thermometer
-
                 make_thermometer("thermometer");
-
-                // run graph setup function with delay so that it runs after display is rendered
-                window.setTimeout(this._setupGraph.bind(this), 100);
-                // save start time to reference later
-                this.start_time = Date.now();
+            },
+            attached() {
+                this._setupGraph();
+                this.start_time = performance.now();
             },
             // compare two decisions
             _equals(d, decision) {
@@ -230,7 +228,7 @@ Example:
                         this.other_decision = this.decisions[key];
 
                         this._graphUpdatePayoffs();
-                        //break;
+                        break;
                     }
                 }
             },
@@ -289,22 +287,25 @@ Example:
                 });
 
                 // start update function
-                this._updateGraph();
+                window.requestAnimationFrame(this._updateGraph.bind(this));
             },
             // updates current payoff value every 50 ms
-            _updateGraph() {
+            _updateGraph(timestamp) {
                 var dataset = this.graph_obj.series[0];
                 // calculate x value for current time
-                var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+                var xval = (timestamp - this.start_time) / (this.periodLength * 1000);
 
                 var len = dataset.data.length;
                 dataset.data[len - 1].update({x: xval});
 
-                // recursively call update after a delay
-                window.setTimeout(this._updateGraph.bind(this), 50);
+                // recursively call update
+                window.requestAnimationFrame(this._updateGraph.bind(this));
             },
             // is called everytime someone's decision changes and update payoff graph
             _graphUpdatePayoffs() {
+                // if graph hasn't been initialized, don't do anything
+                if (!this.graph_obj) return;
+
                 // gets this player's payoff array
                 var my_payoffs = this.payoffMatrix.map(function (current_val) {
                     return current_val[this.payoffIndex];
@@ -317,12 +318,13 @@ Example:
                                    ((1 - this.my_decision) * (1 - this.other_decision) * my_payoffs[3]);
 
                 // calculate new decision's timestamp as a value between 0 and 1
-                var xval = (Date.now() - this.start_time) / (this.periodLength * 1000);
+                var xval = (performance.now() - this.start_time) / (this.periodLength * 1000);
+
                 var dataset = this.graph_obj.series[0];
                 var len = dataset.data.length;
                 dataset.data[len - 1].remove();
                 dataset.addPoint([xval, point_payoff], false, false);
-                dataset.addPoint([xval, point_payoff], true, false);
+                dataset.addPoint([xval + Number.EPSILON, point_payoff], true, false);
             }
         });
     </script>
