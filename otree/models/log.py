@@ -11,7 +11,10 @@ class LogEvent(models.Model):
         ordering = ['pk']
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    session = models.CharField(max_length=100, null=False)
+    session = models.ForeignKey(
+        'otree.Session',
+        null=False,
+        related_name='+')
     subsession = models.IntegerField(null=False)
     round = models.IntegerField(null=False)
     group = models.IntegerField(null=False)
