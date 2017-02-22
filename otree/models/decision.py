@@ -8,12 +8,15 @@ class Decision(models.Model):
 
     class Meta:
         app_label = "otree"
-        # if i don't set this, it could be in an unpredictable order
+        # If I don't set this, it could be in an unpredictable order
         ordering = ['pk']
 
     timestamp = models.DateTimeField(null=False)
     component = models.CharField(max_length=100, null=False)
-    session = models.CharField(max_length=100, null=False)
+    session = models.ForeignKey(
+        'otree.Session',
+        null=False,
+        related_name='+')
     subsession = models.IntegerField(null=True)
     round = models.IntegerField(null=False)
     group = models.IntegerField(null=False)

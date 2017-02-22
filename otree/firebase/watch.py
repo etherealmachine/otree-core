@@ -39,6 +39,7 @@ import threading
 from otree.models.decision import Decision
 from otree.models.log import LogEvent
 from otree.models.participant import Participant
+from otree.models.session import Session
 
 
 logger = logging.getLogger(__name__)
@@ -71,7 +72,11 @@ def _handleDecisionEvent(match, data):
     g = match.groupdict()
     d = Decision()
     d.component = g['component']
-    d.session = g['session']
+    try:
+        d.session = Session.objects.get(code=g['session'])
+    except Session.DoesNotExist:
+        # Ignore events from sessions not managed by this instance of oTree
+        return
     try:
         d.subsession = int(g['subsession'])
     except ValueError:
@@ -92,7 +97,11 @@ _LOG_RE = re.compile('/log/(?P<session>.*)/.*')
 def _handleLogEvent(match, data):
     g = match.groupdict()
     event = LogEvent()
-    event.session = g['session']
+    try:
+        event.session = Session.objects.get(code=g['session'])
+    except Session.DoesNotExist:
+        # Ignore events from sessions not managed by this instance of oTree
+        return
     event.subsession = data['subsession']
     event.round = data['round']
     event.group = data['group']

@@ -170,8 +170,8 @@ def export_data(fp, app_name):
         'event'
     ])
     log_csv.writeheader()
-    sessions = set((row[colnames.index('Session.code')] for row in rows))
-    query = [Q(session=session) for session in sessions]
+
+    query = [Q(session__code=row[colnames.index('Session.code')]) for row in rows]
     events = [{
         'timestamp': e.timestamp,
         'session': e.session,
