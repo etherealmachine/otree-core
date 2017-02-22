@@ -123,19 +123,22 @@ class Thread(threading.Thread):
               params=params)
         for msg in messages:
             if msg.event == 'put':
-                data = json.loads(msg.data)
+                message_payload = json.loads(msg.data)
                 matches = []
                 for (regex, handlerFunc) in _matchers:
-                    match = regex.match(data['path'])
+                    match = regex.match(message_payload['path'])
                     if match:
-                        matches.append((handlerFunc, match, data['data']))
+                        matches.append((handlerFunc, match, message_payload['data']))
                 if len(matches) == 0:
                     logger.warning(
-                        'unhandled firebase event at path %s', data['path'])
+                        'unhandled firebase event at path %s', message_payload['path'])
                 elif len(matches) > 1:
                     logger.warning(
                         'more than one handler for firebase event at path %s',
-                        data['path'])
+                        message_payload['path'])
                 else:
                     f, match, data = matches[0]
-                    f(match, data)
+                    try:
+                        f(match, data)
+                    except:
+                        logger.exception("data at firebase path %s caused exception", message_payload['path'])
