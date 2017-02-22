@@ -39,6 +39,7 @@ import threading
 from otree.models.decision import Decision
 from otree.models.log import LogEvent
 from otree.models.participant import Participant
+from otree.models.session import Session
 
 
 logger = logging.getLogger(__name__)
@@ -71,7 +72,7 @@ def _handleDecisionEvent(match, data):
     g = match.groupdict()
     d = Decision()
     d.component = g['component']
-    d.session = g['session']
+    d.session = Session.objects.get(code=g['session'])
     try:
         d.subsession = int(g['subsession'])
     except ValueError:

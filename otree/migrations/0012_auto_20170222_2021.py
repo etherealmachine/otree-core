@@ -15,13 +15,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Decision',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
-                ('timestamp', otree.db.models.DateTimeField(auto_now_add=True, null=True)),
-                ('component', otree.db.models.CharField(null=True, max_length=100)),
-                ('session', otree.db.models.CharField(null=True, max_length=100)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('timestamp', otree.db.models.DateTimeField(null=True)),
+                ('component', otree.db.models.CharField(max_length=100, null=True)),
                 ('subsession', otree.db.models.IntegerField(null=True)),
                 ('round', otree.db.models.IntegerField(null=True)),
                 ('group', otree.db.models.IntegerField(null=True)),
+                ('page', otree.db.models.CharField(max_length=100, null=True)),
+                ('app', otree.db.models.CharField(max_length=100, null=True)),
                 ('decision', otree.db.models.JSONField(null=True)),
             ],
             options={
@@ -31,9 +32,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LogEvent',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', otree.db.models.DateTimeField(auto_now_add=True, null=True)),
-                ('session', otree.db.models.CharField(null=True, max_length=100)),
+                ('session', otree.db.models.CharField(max_length=100, null=True)),
                 ('subsession', otree.db.models.IntegerField(null=True)),
                 ('round', otree.db.models.IntegerField(null=True)),
                 ('group', otree.db.models.IntegerField(null=True)),
@@ -64,5 +65,10 @@ class Migration(migrations.Migration):
             model_name='decision',
             name='participant',
             field=otree.db.models.ForeignKey(to='otree.Participant'),
+        ),
+        migrations.AddField(
+            model_name='decision',
+            name='session',
+            field=otree.db.models.ForeignKey(related_name='+', to='otree.Session'),
         ),
     ]
