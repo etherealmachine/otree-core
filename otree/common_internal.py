@@ -129,7 +129,8 @@ def get_app_constants(app_name):
 
 
 def export_data(fp, app_name):
-    """Write the data of the given app name as a zip file into the file-like object
+    """Write the data of the given app name as a zip file into the file-like
+    object.
 
     Limit to the given session, if not None.
 
@@ -171,7 +172,9 @@ def export_data(fp, app_name):
     ])
     log_csv.writeheader()
 
-    query = [Q(session__code=row[colnames.index('Session.code')]) for row in rows]
+    query = [
+        Q(session__code=row[colnames.index('Session.code')])
+        for row in rows]
     events = [{
         'timestamp': e.timestamp,
         'session': e.session,

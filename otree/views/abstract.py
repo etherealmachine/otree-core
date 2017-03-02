@@ -668,7 +668,7 @@ class InGameWaitPageMixin(object):
             return _('Waiting for the other participant.')
         return ''
 
-    def log_decision_bookends(start_time, end_time, app, initial_decision):
+    def log_decision_bookends(self, start_time, end_time, app, initial_decision):
         """Insert dummy decisions into the database.
         
         This should be done once per group.
