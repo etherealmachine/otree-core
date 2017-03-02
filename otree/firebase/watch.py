@@ -84,7 +84,7 @@ def _handleDecisionEvent(match, data):
     d.group = int(g['group'])
     d.participant = Participant.objects.get(code=g['participant_code'])
     d.app = g['app']
-    d.decision_vector = data
+    d.value = data
     d.save()
 
 

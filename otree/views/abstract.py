@@ -668,7 +668,7 @@ class InGameWaitPageMixin(object):
             return _('Waiting for the other participant.')
         return ''
 
-    def log_decision_bookends(self, start_time, end_time, app, initial_decision):
+    def log_decision_bookends(self, start_time, end_time, app, component, initial_decision):
         """Insert dummy decisions into the database.
         
         This should be done once per group.
@@ -677,21 +677,20 @@ class InGameWaitPageMixin(object):
         for player in self.group.get_players():
             start_decision, end_decision = Decision(), Decision()
             for d in start_decision, end_decision:
-                d.component = "otree-server"
+                d.app = app
+                d.component = component
                 d.session = self.session
                 d.subsession = self.subsession.name()
                 d.round = self.round_number
                 d.group = self.group.id_in_subsession
-                d.app = app
                 d.participant = player.participant
-                d.decision_vector = initial_decision
+                d.value = initial_decision
 
             start_decision.timestamp = start_time
             end_decision.timestamp = end_time
 
             start_decision.save()
             end_decision.save()
-
 
 
 class FormPageMixin(object):

@@ -7,9 +7,6 @@ def collect_ticks(decisions):
 
     Currently this gives 1 tick per second, but that could be parameterized
     if necessary.
-
-    Note: This does not yet handle decision vectors yet - all decision
-    vectors are treated as a scalar.
     """
     ticks = []
     sessions = defaultdict(lambda: {
@@ -36,19 +33,19 @@ def collect_ticks(decisions):
                 tick_decisions[decision.participant.code].append(decision)
                 if decision.timestamp >= tick_end:
                     for participant in participants:
-                        mean_decision_vector = (
-                            last_decision[participant.code].decision_vector)
+                        mean_value = (
+                            last_decision[participant.code].value)
                         if tick_decisions[participant.code]:
-                            tick_decision_vectors = [
-                                d.decision_vector
+                            tick_values = [
+                                d.value
                                 for d in tick_decisions[participant.code]]
-                            mean_decision_vector = (
-                                sum(tick_decision_vectors) /
-                                len(tick_decision_vectors))
+                            mean_value = (
+                                sum(tick_values) /
+                                len(tick_values))
                         round_ticks.append({
                             'tick': tick,
                             'participant': participant.code,
-                            'mean_decision': mean_decision_vector,
+                            'mean_decision': mean_value,
                             'session': session.code,
                             'subsession': (
                                 last_decision[participant.code].subsession),

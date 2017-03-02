@@ -21,9 +21,8 @@ class Migration(migrations.Migration):
                 ('subsession', otree.db.models.IntegerField(null=True)),
                 ('round', otree.db.models.IntegerField(null=True)),
                 ('group', otree.db.models.IntegerField(null=True)),
-                ('page', otree.db.models.CharField(max_length=100, null=True)),
                 ('app', otree.db.models.CharField(max_length=100, null=True)),
-                ('decision_vector', otree.db.models.JSONField(null=True)),
+                ('value', otree.db.models.JSONField(null=True)),
             ],
             options={
                 'ordering': ['pk'],
