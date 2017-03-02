@@ -23,7 +23,7 @@ class Decision(models.Model):
     page = models.CharField(max_length=100, null=False)
     app = models.CharField(max_length=100, null=False)
     participant = models.ForeignKey('otree.Participant', null=False)
-    decision = models.JSONField(null=False)
+    decision_vector = models.JSONField(null=False)
 
     def save(self, *args, **kwargs):
         if self.timestamp is None:

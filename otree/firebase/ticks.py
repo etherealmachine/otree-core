@@ -29,10 +29,10 @@ def collect_ticks(decisions):
           if decision.timestamp >= tick_end:
             for participant in participants:
               mean_decision = (
-                last_decision[participant.code].decision[participant.code])
+                last_decision[participant.code].decision_vector[0])
               if tick_decisions[participant.code]:
                 decision_values = [
-                  d.decision[participant.code]
+                  d.decision_vector[0]
                   for d in tick_decisions[participant.code]]
                 mean_decision = (
                   sum(decision_values) /

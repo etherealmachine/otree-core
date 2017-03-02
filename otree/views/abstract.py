@@ -35,6 +35,7 @@ import otree.timeout.tasks
 import otree.models
 import otree.db.idmap
 import otree.constants_internal as constants
+from otree.models import Decision
 from otree.models import Participant
 from otree.common_internal import (
     get_app_label_from_import_path, get_dotted_name)
@@ -666,6 +667,31 @@ class InGameWaitPageMixin(object):
         if num_other_players == 1:
             return _('Waiting for the other participant.')
         return ''
+
+    def log_decision_bookends(start_time, end_time, app, initial_decision):
+        """Insert dummy decisions into the database.
+        
+        This should be done once per group.
+        This bookends the start and end of the period.
+        """
+        for player in self.group.get_players():
+            start_decision, end_decision = Decision(), Decision()
+            for d in start_decision, end_decision:
+                d.component = "otree-server"
+                d.session = self.session
+                d.subsession = self.subsession.name()
+                d.round = self.round_number
+                d.group = self.group.id_in_subsession
+                d.app = app
+                d.participant = player.participant
+                d.decision_vector = initial_decision
+
+            start_decision.timestamp = start_time
+            end_decision.timestamp = end_time
+
+            start_decision.save()
+            end_decision.save()
+
 
 
 class FormPageMixin(object):

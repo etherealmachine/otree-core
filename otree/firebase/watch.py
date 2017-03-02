@@ -63,9 +63,8 @@ _DECISION_RE = re.compile(
     '/subsession/(?P<subsession>.*)' +
     '/round/(?P<round>.*)' +
     '/group/(?P<group>.*)' +
-    '/page/(?P<page>.*)' +
     '/component/(?P<component>.*)' +
-    '/decisions/(?P<participant_code>.*)')
+    '/decision/(?P<participant_code>.*)')
 
 
 def _handleDecisionEvent(match, data):
@@ -85,9 +84,7 @@ def _handleDecisionEvent(match, data):
     d.group = int(g['group'])
     d.participant = Participant.objects.get(code=g['participant_code'])
     d.app = g['app']
-    d.page = g['page']
-    d.decision = data
-
+    d.decision_vector = data
     d.save()
 
 
