@@ -134,10 +134,12 @@ class Thread(threading.Thread):
                 for (regex, handlerFunc) in _matchers:
                     match = regex.match(message_payload['path'])
                     if match:
-                        matches.append((handlerFunc, match, message_payload['data']))
+                        matches.append(
+                            (handlerFunc, match, message_payload['data']))
                 if len(matches) == 0:
                     logger.warning(
-                        'unhandled firebase event at path %s', message_payload['path'])
+                        'unhandled firebase event at path %s',
+                        message_payload['path'])
                 elif len(matches) > 1:
                     logger.warning(
                         'more than one handler for firebase event at path %s',
@@ -147,4 +149,6 @@ class Thread(threading.Thread):
                     try:
                         f(match, data)
                     except:
-                        logger.exception("data at firebase path %s caused exception", message_payload['path'])
+                        logger.exception(
+                            "data at firebase path %s caused exception",
+                            message_payload['path'])
