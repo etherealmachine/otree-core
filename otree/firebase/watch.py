@@ -64,7 +64,7 @@ _DECISION_RE = re.compile(
     '/round/(?P<round>.*)' +
     '/group/(?P<group>.*)' +
     '/component/(?P<component>.*)' +
-    '/decision/(?P<participant_code>.*)')
+    '/decisions/(?P<participant_code>.*)')
 
 
 def _handleDecisionEvent(match, data):

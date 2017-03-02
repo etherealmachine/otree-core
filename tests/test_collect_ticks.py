@@ -50,7 +50,8 @@ class TestCollectTicks(TestCase):
                 d.page = 'test-page'
                 d.app = 'test-app'
                 d.participant = player
-                d.decision_vector = [0.5]
+                # TODO: Test using a decision vector
+                d.decision_vector = 0.5
 
             start_decision.timestamp = round_start_time
             end_decision.timestamp = round_end_time
@@ -70,7 +71,7 @@ class TestCollectTicks(TestCase):
           d.participant = random.choice(players)
           d.app = 'test-app'
           d.page = 'test-page'
-          d.decision_vector = [0.5]
+          d.decision_vector = 0.5
           d.save()
           curr_time += datetime.timedelta(
             milliseconds=random.randint(100, 1000))
