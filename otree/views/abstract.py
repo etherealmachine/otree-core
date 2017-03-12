@@ -44,6 +44,7 @@ from otree.models_concrete import (
     PageCompletion, CompletedSubsessionWaitPage,
     CompletedGroupWaitPage, PageTimeout, UndefinedFormModel,
     ParticipantLockModel, GlobalLockModel)
+from otree.firebase.events import SubperiodEmitter
 
 
 # Get an instance of a logger
@@ -684,13 +685,22 @@ class InGameWaitPageMixin(object):
                 d.round = self.round_number
                 d.group = self.group.id_in_subsession
                 d.participant = player.participant
-                d.value = initial_decision
 
             start_decision.timestamp = start_time
+            start_decision.value = initial_decision
             end_decision.timestamp = end_time
+            end_decision.value = None
 
             start_decision.save()
             end_decision.save()
+
+    def start_subperiod_emitter(self, period_length, num_subperiods):
+        SubperiodEmitter(
+            self.session,
+            self.subsession,
+            self.round_number,
+            self.group,
+            period_length, num_subperiods).start()
 
 
 class FormPageMixin(object):

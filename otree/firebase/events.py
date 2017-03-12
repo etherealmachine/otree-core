@@ -15,6 +15,8 @@ import logging
 import threading
 import time
 
+from otree.models import Decision
+
 
 logger = logging.getLogger(__name__)
 
@@ -25,47 +27,67 @@ _FIREBASE_SECRET = 'uXop5iUjKkGfH20sFmdCMenX7QnUWmnWDde76WQR'
 _emitters = {}
 
 
-def start_emitter(waitPage, period_length, num_subperiods):
-    path = ('/session/%s' +
+class DuplicatePathError(ValueError):
+
+    def __init__(self, path, *args):
+        self.message = 'Already emitting events on {}'.format(path)
+        super(DuplicatePathError, self).__init__(self.message, *args)
+
+
+class SubperiodEmitter(object):
+
+    def __init__(self, session, subsession, roundno, group,
+                 period_length, num_subperiods):
+        self.path = (
+            '/session/%s' +
             '/app/%s' +
             '/subsession/%s' +
             '/round/%s' +
             '/group/%s' +
-            '/page/%s' +
             '/subperiods') % (
-        waitPage.session.code,
-        waitPage.subsession.app_name,
-        waitPage.subsession.id,
-        waitPage.round_number,
-        waitPage.group.id_in_subsession,
-        'tmp')
-    if path not in _emitters:
-        _emitters[path] = Emitter(path, period_length, num_subperiods)
-        _emitters[path].start()
-
-
-class Emitter(threading.Thread):
-
-    def __init__(self, path, period_length, num_subperiods):
-        super(Emitter, self).__init__()
-        self.path = path
+            session.code,
+            subsession.app_name,
+            subsession.id,
+            roundno,
+            group.id_in_subsession)
+        if self.path in _emitters:
+            raise DuplicatePathError(path)
+        _emitters[self.path] = self
+        self.session = session
+        self.subsession = subsession
+        self.roundno = roundno
+        self.group = group
         self.period_length = period_length
         self.num_subperiods = num_subperiods
         self.subperiod_length = period_length / num_subperiods
+        self.current_subperiod = 0
         self.firebase = firebase.FirebaseApplication(_FIREBASE_URL)
+        self.timer = threading.Timer(
+            self.subperiod_length, self.emit_subperiod_event)
 
-    def run(self):
-        self.subperiod = 0
-        while self.subperiod < self.num_subperiods:
-            time.sleep(self.subperiod_length)
-            self.subperiod += 1
-            # TODO: From watch.py, pull the last decision for every subject in
-            # the group. This will be the canonical decision for that subject
-            # in the given subperiod.
-            decisions = []
-            event = {
-                'id': self.subperiod,
-                'decisions': decisions
-            }
-            self.firebase.put(self.path, self.subperiod, event)
-        return
+    def start(self):
+        self.timer.start()
+
+    def emit_subperiod_event(self):
+        if self.current_subperiod + 1 < self.num_subperiods:
+            self.timer = threading.Timer(
+                self.subperiod_length, self.emit_subperiod_event)
+            self.timer.start()
+        # TODO: Filter by component?
+        group_decisions = Decision.objects.filter(
+            session=self.session,
+            subsession=self.subsession.id,
+            round=self.roundno,
+            group=self.group.id_in_subsession).exclude(value=None)
+        decisions = {}
+        for player in self.group.get_players():
+            last_decision = group_decisions.filter(
+                participant=player.participant)[0]
+            decisions[player.participant.code] = last_decision.value
+        event = {
+            'decisions': decisions
+        }
+        self.firebase.post(self.path, event)
+        self.current_subperiod += 1
+        if self.current_subperiod >= self.num_subperiods:
+            del(_emitters[self.path])
